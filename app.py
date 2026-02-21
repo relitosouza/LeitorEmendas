@@ -313,18 +313,26 @@ def get_parlamentar_data(query):
         for _, row in mun_sorted.iterrows():
             top_mun[str(safe_val(row['municipio'], 'N/A'))] = float(safe_val(row['valor_num'], 0))
 
-    # Setor Prioritário (Função)
+    # Setor Prioritário (Função) — até 2 setores se empatarem no topo
     top_func = {}
-    setor_prioritario_nome = "-"
-    setor_prioritario_val = 0.0
+    setores_prioritarios = []
 
     if 'funcao' in filtered_df.columns and 'valor_num' in filtered_df.columns:
         func_grp = filtered_df.groupby('funcao')['valor_num'].sum().reset_index()
         func_sorted = func_grp.sort_values(by='valor_num', ascending=False)
 
         if len(func_sorted) > 0:
-            setor_prioritario_nome = safe_val(func_sorted.iloc[0]['funcao'], '-')
-            setor_prioritario_val = float(safe_val(func_sorted.iloc[0]['valor_num'], 0))
+            top_val = float(safe_val(func_sorted.iloc[0]['valor_num'], 0))
+            # Pegar todos os setores que empatam com o maior valor (máximo 2)
+            for _, row in func_sorted.iterrows():
+                row_val = float(safe_val(row['valor_num'], 0))
+                if row_val == top_val and len(setores_prioritarios) < 2:
+                    setores_prioritarios.append({
+                        "nome": str(safe_val(row['funcao'], '-')),
+                        "valor": row_val
+                    })
+                else:
+                    break
 
         for _, row in func_sorted.iterrows():
             top_func[str(safe_val(row['funcao'], 'N/A'))] = float(safe_val(row['valor_num'], 0))
@@ -354,10 +362,7 @@ def get_parlamentar_data(query):
             "total_indicado": total_val,
             "count": len(filtered_df),
             "execucao_pago": pct_pago,
-            "setor_prioritario": {
-                "nome": str(setor_prioritario_nome),
-                "valor": float(setor_prioritario_val)
-            }
+            "setor_prioritario": setores_prioritarios
         },
         "top_municipios": top_mun,
         "todas_funcoes": top_func,

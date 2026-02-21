@@ -456,8 +456,18 @@
         document.getElementById('percentualPago').textContent = `${data.indicadores.execucao_pago.toFixed(1)}%`;
         document.getElementById('barraProgressoPago').style.width = `${data.indicadores.execucao_pago.toFixed(1)}%`;
 
-        document.getElementById('topSetorNome').textContent = data.indicadores.setor_prioritario.nome;
-        document.getElementById('topSetorValor').textContent = formatCurrency(data.indicadores.setor_prioritario.valor);
+        // Setor prioritário — pode ter até 2 empatados
+        const setores = data.indicadores.setor_prioritario;
+        if (setores.length === 1) {
+            document.getElementById('topSetorNome').textContent = setores[0].nome;
+            document.getElementById('topSetorValor').textContent = formatCurrency(setores[0].valor);
+        } else if (setores.length >= 2) {
+            document.getElementById('topSetorNome').textContent = `${setores[0].nome} e ${setores[1].nome}`;
+            document.getElementById('topSetorValor').textContent = formatCurrency(setores[0].valor) + ' cada';
+        } else {
+            document.getElementById('topSetorNome').textContent = '-';
+            document.getElementById('topSetorValor').textContent = 'R$ 0,00';
+        }
 
         // Lista Esquerda: Base Eleitoral (Top Municípios)
         const munListEl = document.getElementById('listaMunicipios');
