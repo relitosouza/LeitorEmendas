@@ -36,3 +36,4 @@ data/*.xls
 
 # Node
 node_modules/
+.vercel

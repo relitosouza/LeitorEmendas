@@ -4,18 +4,11 @@ import numpy as np
 import os
 import io
 import math
-import pdfplumber
 
 app = Flask(__name__)
 
-# Detectar ambiente Vercel (filesystem read-only exceto /tmp)
-IS_VERCEL = os.environ.get('VERCEL', False)
-
 # Pasta para persistir arquivos carregados
-if IS_VERCEL:
-    DATA_DIR = '/tmp/data'
-else:
-    DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
 os.makedirs(DATA_DIR, exist_ok=True)
 
 # Dicionário global: {ano: DataFrame}
@@ -150,77 +143,6 @@ def process_dataframe(df):
 
     return df
 
-def extract_dataframe_from_pdf(file_stream):
-    """Extrai tabelas de um PDF e tenta converter em um DataFrame consolidado."""
-    all_rows = []
-    
-    with pdfplumber.open(file_stream) as pdf:
-        for page in pdf.pages:
-            # Extrai tabelas da página (pode haver mais de uma)
-            tables = page.extract_tables()
-            for table in tables:
-                # O table é uma lista de listas (linhas -> colunas)
-                # Removendo linhas totalmente vazias ou nulas
-                cleaned_table = [row for row in table if row and any(cell and cell.strip() for cell in row)]
-                all_rows.extend(cleaned_table)
-                
-    if not all_rows:
-         raise ValueError("Nenhuma tabela encontrada no PDF.")
-         
-    # Tenta usar a primeira linha preenchida como cabeçalho
-    # Caso o título principal puxe a primeira linha da tabela, precisamos achar a linha correta dos cabeçalhos
-    header_idx = 0
-    for i, row in enumerate(all_rows[:15]): # Procura nas 15 primeiras linhas do documento
-        row_str = ' '.join([str(c).upper() for c in row if c])
-        if 'PARLAMENTAR' in row_str and ('VALOR' in row_str or 'MUNICÍPIO' in row_str or 'MUNICIPIO' in row_str):
-            header_idx = i
-            break
-
-    header = all_rows[header_idx]
-    data = all_rows[header_idx+1:]
-    
-    # Se houver cabeçalhos repetidos no meio dos dados (quebras de página de tabelas geradas automaticamente),
-    # filtramos linhas que sejam idênticas ao cabeçalho.
-    data = [row for row in data if row != header]
-    
-    # Montando DataFrame
-    df = pd.DataFrame(data, columns=header)
-    return df
-
-def process_pdf_dataframe(df):
-    """Processa especificamente o DataFrame gerado via PDF (versões anteriores a 2022)."""
-    # Limpa nomes das colunas
-    df.columns = [str(c).strip().upper() for c in df.columns]
-
-    col_mapper = {}
-    for col in df.columns:
-        if 'PARLAMENTAR' in col: col_mapper[col] = 'nome'
-        elif 'BENEFICIÁRIO' in col or 'BENEFICIARIO' in col: col_mapper[col] = 'orgao'
-        elif 'MUNICÍPIO' in col or 'MUNICIPIO' in col: col_mapper[col] = 'municipio'
-        elif 'OBJETO' in col: col_mapper[col] = 'objeto'
-        elif 'VALOR' in col: col_mapper[col] = 'valor'
-        elif 'STATUS' in col: col_mapper[col] = 'status'
-        # ÓRGÃO PROCESSADOR será ignorado
-
-    df = df.rename(columns=col_mapper)
-
-    # Preenche colunas obrigatórias faltantes para o frontend não quebrar
-    for missing_col in ['partido', 'codigo', 'data', 'funcao']:
-        if missing_col not in df.columns:
-            df[missing_col] = '-'
-
-    if 'nome' in df.columns:
-        df['nome'] = df['nome'].astype(str).str.strip()
-    if 'valor' in df.columns:
-        df['valor_num'] = df['valor'].apply(parse_moeda)
-    if 'status' in df.columns:
-        df['pago_flag'] = df['status'].astype(str).str.lower().str.contains('pago')
-    else:
-        df['pago_flag'] = False
-
-    return df
-
-
 
 def load_saved_files():
     """Carrega todos os arquivos salvos na pasta data/ ao iniciar o servidor."""
@@ -235,17 +157,12 @@ def load_saved_files():
                     df = pd.read_csv(filepath, encoding='utf-8')
                 except UnicodeDecodeError:
                     df = pd.read_csv(filepath, encoding='latin-1')
-                df = process_dataframe(df)
             elif filename.endswith('.xlsx') or filename.endswith('.xls'):
                 df = pd.read_excel(filepath)
-                df = process_dataframe(df)
-            elif filename.endswith('.pdf'):
-                with open(filepath, 'rb') as f:
-                     df = extract_dataframe_from_pdf(f)
-                df = process_pdf_dataframe(df)
             else:
                 continue
 
+            df = process_dataframe(df)
             # Extrair ano do nome do arquivo (ex: "2024.csv" -> "2024")
             ano = os.path.splitext(filename)[0]
             global_dfs[ano] = df
@@ -282,7 +199,7 @@ def upload_csv():
     # Ano informado pelo frontend (default: extrair do nome do arquivo ou usar 'geral')
     ano = request.form.get('ano', '').strip()
 
-    if file and (file.filename.endswith('.csv') or file.filename.endswith('.xlsx') or file.filename.endswith('.xls') or file.filename.endswith('.pdf')):
+    if file and (file.filename.endswith('.csv') or file.filename.endswith('.xlsx') or file.filename.endswith('.xls')):
         file_stream = file.read()
 
         try:
@@ -292,13 +209,10 @@ def upload_csv():
                     df = pd.read_csv(io.BytesIO(file_stream), encoding='utf-8')
                 except UnicodeDecodeError:
                     df = pd.read_csv(io.BytesIO(file_stream), encoding='latin-1')
-                df = process_dataframe(df)
-            elif file.filename.endswith('.pdf'):
-                df = extract_dataframe_from_pdf(io.BytesIO(file_stream))
-                df = process_pdf_dataframe(df)
             else:
                 df = pd.read_excel(io.BytesIO(file_stream))
-                df = process_dataframe(df)
+
+            df = process_dataframe(df)
 
             # Detectar ano se não informado
             if not ano:
@@ -327,7 +241,7 @@ def upload_csv():
         except Exception as e:
             return jsonify({"error": f"Erro processando arquivo: {str(e)}"}), 500
 
-    return jsonify({"error": "Apenas arquivos .csv, .xls, .xlsx ou .pdf são válidos"}), 400
+    return jsonify({"error": "Apenas arquivos .csv, .xls ou .xlsx são válidos"}), 400
 
 @app.route('/api/anos')
 def listar_anos():
@@ -393,26 +307,18 @@ def get_parlamentar_data(query):
         for _, row in mun_sorted.iterrows():
             top_mun[str(safe_val(row['municipio'], 'N/A'))] = float(safe_val(row['valor_num'], 0))
 
-    # Setor Prioritário (Função) — até 2 setores se empatarem no topo
+    # Setor Prioritário (Função)
     top_func = {}
-    setores_prioritarios = []
+    setor_prioritario_nome = "-"
+    setor_prioritario_val = 0.0
 
     if 'funcao' in filtered_df.columns and 'valor_num' in filtered_df.columns:
         func_grp = filtered_df.groupby('funcao')['valor_num'].sum().reset_index()
         func_sorted = func_grp.sort_values(by='valor_num', ascending=False)
 
         if len(func_sorted) > 0:
-            top_val = float(safe_val(func_sorted.iloc[0]['valor_num'], 0))
-            # Pegar todos os setores que empatam com o maior valor (máximo 2)
-            for _, row in func_sorted.iterrows():
-                row_val = float(safe_val(row['valor_num'], 0))
-                if row_val == top_val and len(setores_prioritarios) < 2:
-                    setores_prioritarios.append({
-                        "nome": str(safe_val(row['funcao'], '-')),
-                        "valor": row_val
-                    })
-                else:
-                    break
+            setor_prioritario_nome = safe_val(func_sorted.iloc[0]['funcao'], '-')
+            setor_prioritario_val = float(safe_val(func_sorted.iloc[0]['valor_num'], 0))
 
         for _, row in func_sorted.iterrows():
             top_func[str(safe_val(row['funcao'], 'N/A'))] = float(safe_val(row['valor_num'], 0))
@@ -442,7 +348,10 @@ def get_parlamentar_data(query):
             "total_indicado": total_val,
             "count": len(filtered_df),
             "execucao_pago": pct_pago,
-            "setor_prioritario": setores_prioritarios
+            "setor_prioritario": {
+                "nome": str(setor_prioritario_nome),
+                "valor": float(setor_prioritario_val)
+            }
         },
         "top_municipios": top_mun,
         "todas_funcoes": top_func,
