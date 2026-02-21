@@ -75,42 +75,42 @@
 <body class="bg-background-light min-h-screen flex flex-col">
 
 <!-- TopNavBar -->
-<div class="relative flex w-full flex-col bg-white border-b border-primary/10">
+<div class="relative flex w-full flex-col bg-gradient-to-r from-primary to-[#1e3a5f] shadow-md">
     <div class="layout-container flex w-full justify-center">
         <div class="layout-content-container flex flex-col w-full max-w-[1400px]">
             <header class="flex items-center justify-between whitespace-nowrap px-6 py-4 flex-wrap gap-4">
-                <div class="flex items-center gap-4 text-primary">
+                <div class="flex items-center gap-4 text-white">
                     <div class="size-6 flex items-center justify-center">
                         <span class="material-symbols-outlined text-[28px]">policy</span>
                     </div>
-                    <h2 class="text-primary text-xl font-bold leading-tight tracking-[-0.02em]">Lupa Cidadã</h2>
+                    <h2 class="text-white text-xl font-bold leading-tight tracking-[-0.02em]">Lupa Cidadã</h2>
                 </div>
                 
                 <!-- Data Upload and Search Area -->
-                <div class="flex items-center gap-4 bg-gray-50 p-2 rounded border border-gray-200 w-full md:w-auto">
+                <div class="flex items-center gap-4 bg-white/10 backdrop-blur-sm p-2 rounded border border-white/20 w-full md:w-auto">
                     <div class="flex items-center gap-2">
-                        <label for="csvFileInput" class="cursor-pointer flex items-center gap-2 bg-white border border-gray-300 px-3 py-1.5 rounded text-sm hover:bg-gray-50 transition-colors">
+                        <label for="csvFileInput" class="cursor-pointer flex items-center gap-2 bg-white/90 border border-white/30 px-3 py-1.5 rounded text-sm text-primary hover:bg-white transition-colors">
                             <span class="material-symbols-outlined text-[18px]">upload_file</span>
                             <span id="file-name-display">Carregar Dados (CSV)</span>
                         </label>
                         <input type="file" id="csvFileInput" accept=".csv, .xls, .xlsx" class="hidden" />
                     </div>
-                    <div class="h-6 w-px bg-gray-300 hidden md:block"></div>
+                    <div class="h-6 w-px bg-white/30 hidden md:block"></div>
                     <!-- Seletor de Ano -->
                     <div id="anoSelectorContainer" class="hidden flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[18px] text-muted">calendar_today</span>
-                        <select id="anoSelector" class="text-sm border border-gray-300 rounded px-2 py-1.5 bg-white focus:border-primary focus:ring-0 cursor-pointer">
+                        <span class="material-symbols-outlined text-[18px] text-white/70">calendar_today</span>
+                        <select id="anoSelector" class="text-sm border border-white/30 rounded px-2 py-1.5 bg-white/90 text-primary focus:border-accent focus:ring-0 cursor-pointer">
                         </select>
                     </div>
-                    <div class="h-6 w-px bg-gray-300 hidden md:block" id="anoDivider" style="display:none"></div>
+                    <div class="h-6 w-px bg-white/30 hidden md:block" id="anoDivider" style="display:none"></div>
                     <form id="searchForm" class="flex items-center gap-2 flex-grow">
                         <div class="relative flex-grow">
                             <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted">
                                 <span class="material-symbols-outlined text-[18px]">search</span>
                             </span>
-                            <input id="searchInput" class="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-300 rounded focus:border-primary focus:ring-0 placeholder:text-gray-400" placeholder="Nome do Parlamentar..." type="text"/>
+                            <input id="searchInput" class="w-full pl-9 pr-3 py-1.5 text-sm border border-white/30 rounded bg-white/90 text-primary focus:border-accent focus:ring-0 placeholder:text-gray-400" placeholder="Nome do Parlamentar..." type="text"/>
                         </div>
-                        <button type="submit" class="bg-primary text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-primary/90 transition-colors">
+                        <button type="submit" class="bg-accent text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-accent/80 transition-colors">
                             Buscar
                         </button>
                     </form>
@@ -131,8 +131,10 @@
         </div>
 
         <!-- Empty State (Shown initially) -->
-        <div id="emptyState" class="flex flex-col items-center justify-center py-20 bg-white border border-primary/20 rounded-sm text-center px-4">
-            <span class="material-symbols-outlined text-6xl text-muted/30 mb-4">person_search</span>
+        <div id="emptyState" class="flex flex-col items-center justify-center py-20 bg-gradient-to-br from-white via-white to-accent/5 border border-primary/10 rounded-lg text-center px-4 shadow-sm">
+            <div class="w-20 h-20 rounded-full bg-accent/10 flex items-center justify-center mb-4">
+                <span class="material-symbols-outlined text-5xl text-accent/50">person_search</span>
+            </div>
             <h2 class="text-2xl font-bold text-primary mb-2">Nenhum parlamentar selecionado</h2>
             <p class="text-muted max-w-md">Faça o upload do arquivo CSV com as emendas e busque pelo nome do parlamentar para visualizar seu perfil detalhado.</p>
         </div>
@@ -147,10 +149,11 @@
             </nav>
 
             <!-- Profile Header -->
-            <section class="bg-white border border-primary/20 p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start md:items-center relative overflow-hidden">
+            <section class="bg-gradient-to-br from-white via-white to-accent/5 border border-primary/10 rounded-lg p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start md:items-center relative overflow-hidden shadow-sm">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent via-primary to-accent"></div>
                 <div class="absolute top-0 right-0 w-64 h-full opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/graphy.png')]"></div>
                 <div class="relative">
-                    <div id="avatarContainer" class="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-2 border-primary/10 bg-gray-100 flex-shrink-0 flex items-center justify-center">
+                    <div id="avatarContainer" class="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-3 border-accent/30 bg-gradient-to-br from-accent/10 to-primary/10 flex-shrink-0 flex items-center justify-center shadow-lg">
                         <span id="avatarIcon" class="material-symbols-outlined text-5xl text-gray-400">person</span>
                         <img id="avatarImg" class="hidden w-full h-full object-cover" alt="Foto do Parlamentar" />
                     </div>
@@ -174,12 +177,13 @@
             </section>
 
             <!-- Summary Cards Grid -->
-            <section class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-primary/20 bg-white divide-y md:divide-y-0 md:divide-x divide-primary/20">
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- Card 1 -->
-                <div class="p-6 flex flex-col justify-between group hover:bg-gray-50 transition-colors">
+                <div class="p-6 flex flex-col justify-between group bg-white border border-primary/10 rounded-lg hover:shadow-md transition-all relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-accent"></div>
                     <div class="flex justify-between items-start mb-4">
                         <h3 class="text-sm font-bold text-muted uppercase tracking-wider">Total Indicado</h3>
-                        <span class="material-symbols-outlined text-primary/40 group-hover:text-accent transition-colors">account_balance_wallet</span>
+                        <span class="material-symbols-outlined text-accent/60 group-hover:text-accent transition-colors">account_balance_wallet</span>
                     </div>
                     <div class="flex flex-col">
                         <span id="valorTotalIndicado" class="text-3xl md:text-4xl font-mono font-medium text-primary tracking-tight">R$ 0,00</span>
@@ -190,10 +194,11 @@
                 </div>
 
                 <!-- Card 2 -->
-                <div class="p-6 flex flex-col justify-between group hover:bg-gray-50 transition-colors">
+                <div class="p-6 flex flex-col justify-between group bg-white border border-primary/10 rounded-lg hover:shadow-md transition-all relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-success"></div>
                     <div class="flex justify-between items-start mb-4">
                         <h3 class="text-sm font-bold text-muted uppercase tracking-wider">Execução (Pago)</h3>
-                        <span class="material-symbols-outlined text-primary/40 group-hover:text-success transition-colors">payments</span>
+                        <span class="material-symbols-outlined text-success/60 group-hover:text-success transition-colors">payments</span>
                     </div>
                     <div class="flex flex-col gap-2">
                         <div class="flex items-baseline gap-2">
@@ -207,10 +212,11 @@
                 </div>
 
                 <!-- Card 3 -->
-                <div class="p-6 flex flex-col justify-between group hover:bg-gray-50 transition-colors">
+                <div class="p-6 flex flex-col justify-between group bg-white border border-primary/10 rounded-lg hover:shadow-md transition-all relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-warning"></div>
                     <div class="flex justify-between items-start mb-4">
                         <h3 class="text-sm font-bold text-muted uppercase tracking-wider">Setor Prioritário</h3>
-                        <span class="material-symbols-outlined text-primary/40 group-hover:text-accent transition-colors">medication</span>
+                        <span class="material-symbols-outlined text-warning/60 group-hover:text-warning transition-colors">medication</span>
                     </div>
                     <div class="flex flex-col">
                         <span id="topSetorNome" class="text-xl font-bold text-primary font-display">Nome do Setor</span>
@@ -221,8 +227,9 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Informações Adicionais -->
-                <section class="lg:col-span-1 bg-white border border-primary/20 p-6 flex flex-col h-full">
-                    <h3 class="text-lg font-bold text-primary mb-6">Top Municípios Beneficiados</h3>
+                <section class="lg:col-span-1 bg-white border border-primary/10 rounded-lg p-6 flex flex-col h-full relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-accent"></div>
+                    <h3 class="text-lg font-bold text-primary mb-6 pl-3">Top Municípios Beneficiados</h3>
                     
                     <div id="listaMunicipios" class="mt-4 space-y-3 flex-grow overflow-y-auto max-h-[400px] pr-2">
                         <!-- Itens dos municípios serão injetados aqui -->
@@ -230,7 +237,7 @@
                 </section>
 
                 <!-- Allocation Table -->
-                <section class="lg:col-span-2 bg-white border border-primary/20 flex flex-col">
+                <section class="lg:col-span-2 bg-white border border-primary/10 rounded-lg flex flex-col overflow-hidden">
                     <div class="p-6 border-b border-primary/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
                             <h3 class="text-lg font-bold text-primary">Histórico de Emendas</h3>
@@ -240,7 +247,7 @@
                     <div class="overflow-x-auto flex-grow max-h-[500px] overflow-y-auto">
                         <table class="w-full text-left border-collapse relative">
                             <thead class="sticky top-0 z-10">
-                                <tr class="bg-gray-50 border-b border-primary/20">
+                                <tr class="bg-gradient-to-r from-primary/5 to-accent/5 border-b border-primary/10">
                                     <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display">Data / Código</th>
                                     <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display">Município / Local</th>
                                     <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display">Destino</th>
@@ -259,11 +266,11 @@
     </div>
 </main>
 
-<footer class="mt-12 border-t border-primary/10 bg-white py-8">
-    <div class="max-w-[1200px] mx-auto px-6 text-center text-sm text-muted space-y-3">
-        <p class="font-display font-medium text-primary mb-2">Lupa Cidadã — Emendas Impositivas</p>
+<footer class="mt-12 bg-gradient-to-r from-primary to-[#1e3a5f] py-8">
+    <div class="max-w-[1200px] mx-auto px-6 text-center text-sm text-white/70 space-y-3">
+        <p class="font-display font-medium text-white mb-2">Lupa Cidadã — Emendas Impositivas</p>
         <p>Dados obtidos do portal de <a href="https://www.transparencia.sp.gov.br/home/emendasparlamentares#gsc.tab=0" target="_blank" rel="noopener noreferrer" class="text-accent hover:underline font-medium">Transparência do Estado de São Paulo</a>.</p>
-        <p class="text-xs">
+        <p class="text-xs text-white/50">
             <a href="https://www12.senado.leg.br/noticias/materias/2025/12/01/o-que-sao-emendas-parlamentares-e-como-sao-definidas" target="_blank" rel="noopener noreferrer" class="text-accent hover:underline">O que são Emendas Impositivas?</a>
             — Saiba mais sobre como funcionam as emendas parlamentares impositivas.
         </p>
