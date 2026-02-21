@@ -7,8 +7,14 @@ import math
 
 app = Flask(__name__)
 
+# Detectar ambiente Vercel (filesystem read-only exceto /tmp)
+IS_VERCEL = os.environ.get('VERCEL', False)
+
 # Pasta para persistir arquivos carregados
-DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+if IS_VERCEL:
+    DATA_DIR = '/tmp/data'
+else:
+    DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
 os.makedirs(DATA_DIR, exist_ok=True)
 
 # Dicionário global: {ano: DataFrame}
