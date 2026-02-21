@@ -251,14 +251,14 @@
                         </div>
                     </div>
                     <div class="overflow-x-auto flex-grow max-h-[500px] overflow-y-auto">
-                        <table class="w-full text-left border-collapse relative">
-                            <thead class="sticky top-0 z-10">
+                        <table class="w-full text-left border-collapse relative min-w-[700px]">
+                            <thead class="sticky top-0 z-10 bg-white">
                                 <tr class="bg-gradient-to-r from-primary/5 to-accent/5 border-b border-primary/10">
-                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display">Data / Código</th>
-                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display">Município / Local</th>
-                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display">Destino</th>
-                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display">Status</th>
-                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display text-right">Valor</th>
+                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display bg-white">Data / Código</th>
+                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display bg-white">Município / Local</th>
+                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display bg-white">Destino</th>
+                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display bg-white">Status</th>
+                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display text-right bg-white">Valor</th>
                                 </tr>
                             </thead>
                             <tbody id="tabelaEmendas" class="divide-y divide-gray-100 text-sm">
@@ -517,27 +517,27 @@
                 : 'bg-warning/10 text-warning-700 border-warning/20';
 
             const tr = document.createElement('tr');
-            tr.className = 'group hover:bg-blue-50/30 transition-colors cursor-pointer border-b border-gray-100 last:border-0';
+            tr.className = 'group hover:bg-blue-50/30 transition-colors cursor-pointer border-b border-gray-100 last:border-0 bg-white';
             tr.innerHTML = `
-                <td class="py-4 px-4 font-mono text-text-main whitespace-nowrap">
+                <td class="py-4 px-4 font-mono text-text-main whitespace-nowrap align-top">
                     <div>${row.data}</div>
                     <div class="text-xs text-muted">${row.codigo}</div>
                 </td>
-                <td class="py-4 px-4 font-medium text-primary">
+                <td class="py-4 px-4 font-medium text-primary align-top max-w-[150px] break-words">
                     ${row.municipio}
                 </td>
-                <td class="py-4 px-4 text-text-main max-w-[200px]">
+                <td class="py-4 px-4 text-text-main max-w-[200px] align-top">
                     <div class="flex flex-col">
-                        <span class="truncate" title="${row.objeto}">${row.objeto}</span>
-                        <span class="text-xs text-muted truncate" title="${row.destino}">${row.destino}</span>
+                        <span class="break-words line-clamp-2" title="${row.objeto}">${row.objeto}</span>
+                        <span class="text-xs text-muted break-words line-clamp-2 mt-1" title="${row.destino}">${row.destino}</span>
                     </div>
                 </td>
-                <td class="py-4 px-4 whitespace-nowrap">
+                <td class="py-4 px-4 whitespace-nowrap align-top">
                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${statusBadgeClasses}">
                         ${row.status}
                     </span>
                 </td>
-                <td class="py-4 px-4 text-right font-mono font-medium text-primary whitespace-nowrap">
+                <td class="py-4 px-4 text-right font-mono font-medium text-primary whitespace-nowrap align-top">
                     ${formatCurrency(row.valor_raw)}
                 </td>
             `;
