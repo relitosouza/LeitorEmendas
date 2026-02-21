@@ -1,0 +1,8 @@
+portal-emendas-dinamico/
+venv/
+__pycache__/
+*.pyc
+.git/
+data/*.xlsx
+data/*.csv
+data/*.xls

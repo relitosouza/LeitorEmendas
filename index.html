@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Perfil do Parlamentar - Lupa Cidadã</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0F172A",
+                        "background-light": "#F8F9FA",
+                        "background-dark": "#101c22",
+                        "surface": "#FFFFFF",
+                        "accent": "#0EA5E9",
+                        "text-main": "#334155",
+                        "muted": "#94A3B8",
+                        "success": "#10B981",
+                        "warning": "#F59E0B",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["IBM Plex Sans", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "2px",
+                        "sm": "2px",
+                        "md": "4px",
+                        "lg": "8px",
+                        "full": "9999px",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: #F8F9FA;
+            color: #334155;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="bg-background-light min-h-screen flex flex-col">
+
+<!-- TopNavBar -->
+<div class="relative flex w-full flex-col bg-white border-b border-primary/10">
+    <div class="layout-container flex w-full justify-center">
+        <div class="layout-content-container flex flex-col w-full max-w-[1400px]">
+            <header class="flex items-center justify-between whitespace-nowrap px-6 py-4 flex-wrap gap-4">
+                <div class="flex items-center gap-4 text-primary">
+                    <div class="size-6 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[28px]">policy</span>
+                    </div>
+                    <h2 class="text-primary text-xl font-bold leading-tight tracking-[-0.02em]">Lupa Cidadã</h2>
+                </div>
+                
+                <!-- Data Upload and Search Area -->
+                <div class="flex items-center gap-4 bg-gray-50 p-2 rounded border border-gray-200 w-full md:w-auto">
+                    <div class="flex items-center gap-2">
+                        <label for="csvFileInput" class="cursor-pointer flex items-center gap-2 bg-white border border-gray-300 px-3 py-1.5 rounded text-sm hover:bg-gray-50 transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">upload_file</span>
+                            <span id="file-name-display">Carregar Dados (CSV)</span>
+                        </label>
+                        <input type="file" id="csvFileInput" accept=".csv, .xls, .xlsx" class="hidden" />
+                    </div>
+                    <div class="h-6 w-px bg-gray-300 hidden md:block"></div>
+                    <!-- Seletor de Ano -->
+                    <div id="anoSelectorContainer" class="hidden flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[18px] text-muted">calendar_today</span>
+                        <select id="anoSelector" class="text-sm border border-gray-300 rounded px-2 py-1.5 bg-white focus:border-primary focus:ring-0 cursor-pointer">
+                        </select>
+                    </div>
+                    <div class="h-6 w-px bg-gray-300 hidden md:block" id="anoDivider" style="display:none"></div>
+                    <form id="searchForm" class="flex items-center gap-2 flex-grow">
+                        <div class="relative flex-grow">
+                            <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted">
+                                <span class="material-symbols-outlined text-[18px]">search</span>
+                            </span>
+                            <input id="searchInput" class="w-full pl-9 pr-3 py-1.5 text-sm border border-gray-300 rounded focus:border-primary focus:ring-0 placeholder:text-gray-400" placeholder="Nome do Parlamentar..." type="text"/>
+                        </div>
+                        <button type="submit" class="bg-primary text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-primary/90 transition-colors">
+                            Buscar
+                        </button>
+                    </form>
+                </div>
+            </header>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<main class="flex-grow w-full flex justify-center py-8 px-4 sm:px-6">
+    <div class="w-full max-w-[1200px] flex flex-col gap-8">
+        
+        <!-- Loading State Overlay (Initially Hidden) -->
+        <div id="loadingOverlay" class="hidden fixed inset-0 bg-white/80 z-50 flex flex-col items-center justify-center backdrop-blur-sm">
+            <span class="material-symbols-outlined animate-spin text-4xl text-primary mb-4">progress_activity</span>
+            <p class="text-lg font-medium text-primary">Processando dados...</p>
+        </div>
+
+        <!-- Empty State (Shown initially) -->
+        <div id="emptyState" class="flex flex-col items-center justify-center py-20 bg-white border border-primary/20 rounded-sm text-center px-4">
+            <span class="material-symbols-outlined text-6xl text-muted/30 mb-4">person_search</span>
+            <h2 class="text-2xl font-bold text-primary mb-2">Nenhum parlamentar selecionado</h2>
+            <p class="text-muted max-w-md">Faça o upload do arquivo CSV com as emendas e busque pelo nome do parlamentar para visualizar seu perfil detalhado.</p>
+        </div>
+
+        <!-- Dashboard Content (Hidden initially) -->
+        <div id="dashboardContent" class="hidden flex-col gap-8">
+            <!-- Breadcrumbs -->
+            <nav class="flex items-center text-sm text-muted">
+                <a class="hover:text-primary transition-colors" href="#">Dashboard Nacional</a>
+                <span class="mx-2">/</span>
+                <span class="text-primary font-medium">Perfil do Parlamentar</span>
+            </nav>
+
+            <!-- Profile Header -->
+            <section class="bg-white border border-primary/20 p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start md:items-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-full opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/graphy.png')]"></div>
+                <div class="relative">
+                    <div id="avatarContainer" class="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-2 border-primary/10 bg-gray-100 flex-shrink-0 flex items-center justify-center">
+                        <span id="avatarIcon" class="material-symbols-outlined text-5xl text-gray-400">person</span>
+                        <img id="avatarImg" class="hidden w-full h-full object-cover" alt="Foto do Parlamentar" />
+                    </div>
+                </div>
+                <div class="flex-grow space-y-2 z-10">
+                    <div class="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-muted border border-muted/30 px-2 py-0.5 rounded-sm w-fit">Parlamentar</span>
+                        <span class="text-xs font-mono text-success bg-success/10 px-2 py-0.5 rounded-sm flex items-center gap-1 w-fit">
+                            <span class="w-1.5 h-1.5 rounded-full bg-success animate-pulse"></span>
+                            Dados Atualizados
+                        </span>
+                    </div>
+                    <h1 id="parlamentarNome" class="text-3xl md:text-5xl font-bold text-primary tracking-tight">Nome do Parlamentar</h1>
+                    <div class="flex items-center gap-3 text-lg text-text-main font-medium">
+                        <span class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-accent text-xl">flag</span>
+                            <span id="parlamentarPartido">Partido</span>
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary Cards Grid -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-0 border border-primary/20 bg-white divide-y md:divide-y-0 md:divide-x divide-primary/20">
+                <!-- Card 1 -->
+                <div class="p-6 flex flex-col justify-between group hover:bg-gray-50 transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-sm font-bold text-muted uppercase tracking-wider">Total Indicado</h3>
+                        <span class="material-symbols-outlined text-primary/40 group-hover:text-accent transition-colors">account_balance_wallet</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span id="valorTotalIndicado" class="text-3xl md:text-4xl font-mono font-medium text-primary tracking-tight">R$ 0,00</span>
+                        <span class="text-xs text-muted mt-1 flex items-center gap-1" id="totalEmendasCount">
+                            0 emendas cadastradas
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="p-6 flex flex-col justify-between group hover:bg-gray-50 transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-sm font-bold text-muted uppercase tracking-wider">Execução (Pago)</h3>
+                        <span class="material-symbols-outlined text-primary/40 group-hover:text-success transition-colors">payments</span>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-baseline gap-2">
+                            <span id="percentualPago" class="text-3xl md:text-4xl font-mono font-medium text-primary tracking-tight">0%</span>
+                            <span class="text-sm text-muted">do total</span>
+                        </div>
+                        <div class="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
+                            <div id="barraProgressoPago" class="bg-success h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="p-6 flex flex-col justify-between group hover:bg-gray-50 transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-sm font-bold text-muted uppercase tracking-wider">Setor Prioritário</h3>
+                        <span class="material-symbols-outlined text-primary/40 group-hover:text-accent transition-colors">medication</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span id="topSetorNome" class="text-xl font-bold text-primary font-display">Nome do Setor</span>
+                        <span id="topSetorValor" class="text-sm font-mono text-text-main mt-1">R$ 0,00</span>
+                    </div>
+                </div>
+            </section>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Informações Adicionais -->
+                <section class="lg:col-span-1 bg-white border border-primary/20 p-6 flex flex-col h-full">
+                    <h3 class="text-lg font-bold text-primary mb-6">Top Municípios Beneficiados</h3>
+                    
+                    <div id="listaMunicipios" class="mt-4 space-y-3 flex-grow overflow-y-auto max-h-[400px] pr-2">
+                        <!-- Itens dos municípios serão injetados aqui -->
+                    </div>
+                </section>
+
+                <!-- Allocation Table -->
+                <section class="lg:col-span-2 bg-white border border-primary/20 flex flex-col">
+                    <div class="p-6 border-b border-primary/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-primary">Histórico de Emendas</h3>
+                            <p class="text-sm text-muted mt-1">Todas as alocações registradas.</p>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto flex-grow max-h-[500px] overflow-y-auto">
+                        <table class="w-full text-left border-collapse relative">
+                            <thead class="sticky top-0 z-10">
+                                <tr class="bg-gray-50 border-b border-primary/20">
+                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display">Data / Código</th>
+                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display">Município / Local</th>
+                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display">Destino</th>
+                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display">Status</th>
+                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display text-right">Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaEmendas" class="divide-y divide-gray-100 text-sm">
+                                <!-- Linhas serão injetadas aqui -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="mt-12 border-t border-primary/10 bg-white py-8">
+    <div class="max-w-[1200px] mx-auto px-6 text-center text-sm text-muted space-y-3">
+        <p class="font-display font-medium text-primary mb-2">Lupa Cidadã — Emendas Impositivas</p>
+        <p>Dados obtidos do portal de <a href="https://www.transparencia.sp.gov.br/home/emendasparlamentares#gsc.tab=0" target="_blank" rel="noopener noreferrer" class="text-accent hover:underline font-medium">Transparência do Estado de São Paulo</a>.</p>
+        <p class="text-xs">
+            <a href="https://www12.senado.leg.br/noticias/materias/2025/12/01/o-que-sao-emendas-parlamentares-e-como-sao-definidas" target="_blank" rel="noopener noreferrer" class="text-accent hover:underline">O que são Emendas Impositivas?</a>
+            — Saiba mais sobre como funcionam as emendas parlamentares impositivas.
+        </p>
+    </div>
+</footer>
+
+<!-- Application Script (Backend Fetch) -->
+<script>
+    const fileInput = document.getElementById('csvFileInput');
+    const fileDisplay = document.getElementById('file-name-display');
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.getElementById('searchInput');
+    const anoSelector = document.getElementById('anoSelector');
+    const anoSelectorContainer = document.getElementById('anoSelectorContainer');
+    const anoDivider = document.getElementById('anoDivider');
+
+    const emptyState = document.getElementById('emptyState');
+    const dashboardContent = document.getElementById('dashboardContent');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    let currentAno = null;
+
+    // Base URL dinâmica - funciona local e no Vercel
+    const API_BASE = window.location.origin;
+
+    const formatCurrency = (value) => {
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(value);
+    };
+
+    // Atualiza o seletor de anos
+    function updateAnoSelector(anos, selected) {
+        anoSelector.innerHTML = '';
+        if (anos && anos.length > 0) {
+            anos.forEach(ano => {
+                const opt = document.createElement('option');
+                opt.value = ano;
+                opt.textContent = ano;
+                if (ano === selected) opt.selected = true;
+                anoSelector.appendChild(opt);
+            });
+            anoSelectorContainer.classList.remove('hidden');
+            anoSelectorContainer.classList.add('flex');
+            anoDivider.style.display = '';
+            currentAno = selected || anos[0];
+        }
+    }
+
+    // Carrega anos disponíveis do servidor ao iniciar
+    async function loadAnos() {
+        try {
+            const response = await fetch(`${API_BASE}/api/anos`);
+            const data = await response.json();
+            if (data.anos && data.anos.length > 0) {
+                updateAnoSelector(data.anos, data.current);
+                fileDisplay.textContent = `Dados carregados (${data.anos.length} ano${data.anos.length > 1 ? 's' : ''})`;
+            }
+        } catch (e) {
+            // Servidor pode não estar rodando ainda
+        }
+    }
+
+    // Trocar ano selecionado
+    anoSelector.addEventListener('change', async () => {
+        const ano = anoSelector.value;
+        currentAno = ano;
+        // Se há um parlamentar exibido, recarregar com o novo ano
+        const nomeAtual = document.getElementById('parlamentarNome').textContent;
+        if (nomeAtual && nomeAtual !== 'Nome do Parlamentar' && !dashboardContent.classList.contains('hidden')) {
+            searchInput.value = nomeAtual;
+            searchForm.dispatchEvent(new Event('submit'));
+        }
+    });
+
+    // Carregar anos ao iniciar a página
+    loadAnos();
+
+    // Busca foto do parlamentar na Wikipedia
+    async function fetchWikipediaPhoto(nome) {
+        const avatarIcon = document.getElementById('avatarIcon');
+        const avatarImg = document.getElementById('avatarImg');
+
+        // Reset para ícone padrão
+        avatarIcon.classList.remove('hidden');
+        avatarImg.classList.add('hidden');
+        avatarImg.src = '';
+
+        try {
+            const title = nome.replace(/\s+/g, '_');
+            const url = `https://pt.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&format=json&pithumbsize=300&origin=*`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            const pages = data.query.pages;
+            const pageId = Object.keys(pages)[0];
+
+            if (pageId !== '-1' && pages[pageId].thumbnail) {
+                avatarImg.src = pages[pageId].thumbnail.source;
+                avatarImg.onload = () => {
+                    avatarIcon.classList.add('hidden');
+                    avatarImg.classList.remove('hidden');
+                };
+            }
+        } catch (e) {
+            // Silenciosamente mantém o ícone padrão
+        }
+    }
+
+    // Upload CSV to Flask
+    fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        fileDisplay.textContent = file.name;
+        loadingOverlay.classList.remove('hidden');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch(`${API_BASE}/api/upload`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            
+            loadingOverlay.classList.add('hidden');
+            if (data.success) {
+                console.log(data.message);
+                if (data.anos_disponiveis) {
+                    updateAnoSelector(data.anos_disponiveis, data.ano);
+                }
+                fileDisplay.textContent = `${file.name} (${data.ano})`;
+            } else {
+                alert('Erro do Servidor: ' + data.error);
+            }
+        } catch (error) {
+            loadingOverlay.classList.add('hidden');
+            alert('Falha na comunicação com o servidor Flask.');
+        }
+    });
+
+    // Search query on Flask
+    searchForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const query = searchInput.value.trim();
+        
+        if (!query) {
+           alert("Digite o nome de um parlamentar.");
+           return;
+        }
+
+        loadingOverlay.classList.remove('hidden');
+        
+        try {
+            const anoParam = currentAno ? `?ano=${encodeURIComponent(currentAno)}` : '';
+            const response = await fetch(`${API_BASE}/api/parlamentar/${encodeURIComponent(query)}${anoParam}`);
+            const data = await response.json();
+            
+            loadingOverlay.classList.add('hidden');
+            
+            if (response.ok && data.success) {
+                renderDashboard(data);
+            } else {
+                emptyState.classList.remove('hidden');
+                dashboardContent.classList.add('hidden');
+                alert(data.error || "Parlamentar não encontrado.");
+            }
+        } catch (error) {
+            loadingOverlay.classList.add('hidden');
+            alert('Falha na comunicação com o servidor API.');
+        }
+    });
+
+    // Inject data from Backend JSON response
+    function renderDashboard(data) {
+        // Headers
+        document.getElementById('parlamentarNome').textContent = data.parlamentar.nome;
+        document.getElementById('parlamentarPartido').textContent = data.parlamentar.partido;
+
+        // Foto Wikipedia
+        fetchWikipediaPhoto(data.parlamentar.nome);
+
+        // Indicadores (Cards)
+        document.getElementById('valorTotalIndicado').textContent = formatCurrency(data.indicadores.total_indicado);
+        document.getElementById('totalEmendasCount').textContent = `${data.indicadores.count} emendas cadastradas`;
+
+        document.getElementById('percentualPago').textContent = `${data.indicadores.execucao_pago.toFixed(1)}%`;
+        document.getElementById('barraProgressoPago').style.width = `${data.indicadores.execucao_pago.toFixed(1)}%`;
+
+        document.getElementById('topSetorNome').textContent = data.indicadores.setor_prioritario.nome;
+        document.getElementById('topSetorValor').textContent = formatCurrency(data.indicadores.setor_prioritario.valor);
+
+        // Lista Esquerda: Base Eleitoral (Top Municípios)
+        const munListEl = document.getElementById('listaMunicipios');
+        munListEl.innerHTML = '';
+        
+        let indexMun = 1;
+        for (const [city, val] of Object.entries(data.top_municipios)) {
+            const pct = data.indicadores.total_indicado > 0 ? ((val/data.indicadores.total_indicado)*100).toFixed(1) : 0;
+            const div = document.createElement('div');
+            div.className = 'flex items-center justify-between text-sm border-b border-gray-100 pb-2 pt-2 last:border-0';
+            div.innerHTML = `
+                <span class="flex items-center gap-2">
+                    <span class="text-muted font-mono">${String(indexMun).padStart(2,'0')}</span>
+                    <span class="font-medium text-primary truncate max-w-[150px]" title="${city}">${city}</span>
+                </span>
+                <span class="font-mono text-text-main">${formatCurrency(val)} <span class="text-xs text-muted">(${pct}%)</span></span>
+            `;
+            munListEl.appendChild(div);
+            indexMun++;
+        }
+
+        // Tabela
+        const tbody = document.getElementById('tabelaEmendas');
+        tbody.innerHTML = '';
+        
+        data.historico.forEach(row => {
+            const statusBadgeClasses = row.is_pago 
+                ? 'bg-success/10 text-success border-success/20' 
+                : 'bg-warning/10 text-warning-700 border-warning/20';
+
+            const tr = document.createElement('tr');
+            tr.className = 'group hover:bg-blue-50/30 transition-colors cursor-pointer border-b border-gray-100 last:border-0';
+            tr.innerHTML = `
+                <td class="py-4 px-4 font-mono text-text-main whitespace-nowrap">
+                    <div>${row.data}</div>
+                    <div class="text-xs text-muted">${row.codigo}</div>
+                </td>
+                <td class="py-4 px-4 font-medium text-primary">
+                    ${row.municipio}
+                </td>
+                <td class="py-4 px-4 text-text-main max-w-[200px]">
+                    <div class="flex flex-col">
+                        <span class="truncate" title="${row.objeto}">${row.objeto}</span>
+                        <span class="text-xs text-muted truncate" title="${row.destino}">${row.destino}</span>
+                    </div>
+                </td>
+                <td class="py-4 px-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${statusBadgeClasses}">
+                        ${row.status}
+                    </span>
+                </td>
+                <td class="py-4 px-4 text-right font-mono font-medium text-primary whitespace-nowrap">
+                    ${formatCurrency(row.valor_raw)}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        emptyState.classList.add('hidden');
+        dashboardContent.classList.remove('hidden');
+        dashboardContent.classList.add('flex');
+    }
+</script>
+</body>
+</html>
