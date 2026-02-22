@@ -37,3 +37,12 @@ data/*.xls
 # Node
 node_modules/
 .vercel
+
+# Supabase / env secrets
+.env
+
+# Compiled Python files
+*.pyc
+
+# Data directory (broad ignore for Supabase migration)
+data/
