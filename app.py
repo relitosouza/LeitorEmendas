@@ -169,23 +169,43 @@ def extract_dataframe_from_pdf(file_stream):
          
     # Tenta usar a primeira linha preenchida como cabeçalho
     # Caso o título principal puxe a primeira linha da tabela, precisamos achar a linha correta dos cabeçalhos
-    header_idx = 0
-    for i, row in enumerate(all_rows[:15]): # Procura nas 15 primeiras linhas do documento
+    header_idx = -1
+    for i, row in enumerate(all_rows[:20]): # Procura nas 20 primeiras linhas do documento
         row_str = ' '.join([str(c).upper() for c in row if c])
-        if 'PARLAMENTAR' in row_str and ('VALOR' in row_str or 'MUNICÍPIO' in row_str or 'MUNICIPIO' in row_str):
+        if 'PARLAMENTAR' in row_str and ('VALOR' in row_str or 'MUNICÍPIO' in row_str or 'MUNICIPIO' in row_str or 'BENEFICI' in row_str):
             header_idx = i
             break
 
+    if header_idx == -1:
+        header_idx = 0
+
     header = all_rows[header_idx]
+    
+    # Sanitiza nomes das colunas para evitar erros de Null columns
+    clean_header = []
+    for i, h in enumerate(header):
+        val = str(h).replace('\n', ' ').strip().upper() if h else f"COLUNA_{i}"
+        clean_header.append(val)
+        
     data = all_rows[header_idx+1:]
     
-    # Se houver cabeçalhos repetidos no meio dos dados (quebras de página de tabelas geradas automaticamente),
-    # filtramos linhas que sejam idênticas ao cabeçalho.
-    data = [row for row in data if row != header]
+    # Filtra quebras de página contendo títulos ou cabeçalhos repetidos
+    valid_data = []
+    for row in data:
+        row_str = ' '.join([str(c).upper() for c in row if c])
+        # Pula cabeçalhos repetidos
+        if 'PARLAMENTAR' in row_str and ('VALOR' in row_str or 'MUNICÍPIO' in row_str or 'MUNICIPIO' in row_str or 'BENEFICI' in row_str):
+            continue
+        # Pula títulos da página que escapem da tabela principal
+        if 'EMENDAS IMPOSITIVAS' in row_str:
+            continue
+            
+        valid_data.append(row)
     
     # Montando DataFrame
-    df = pd.DataFrame(data, columns=header)
+    df = pd.DataFrame(valid_data, columns=clean_header)
     return df
+
 
 def process_pdf_dataframe(df):
     """Processa especificamente o DataFrame gerado via PDF (versões anteriores a 2022)."""
