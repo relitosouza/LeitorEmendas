@@ -722,7 +722,10 @@
         munListEl.innerHTML = '';
         
         let indexMun = 1;
-        for (const [city, val] of Object.entries(data.top_municipios)) {
+        // Ordenando do maior para o menor no Javascript
+        const sortedMun = Object.entries(data.top_municipios).sort((a, b) => b[1] - a[1]);
+        
+        for (const [city, val] of sortedMun) {
             const pct = data.indicadores.total_indicado > 0 ? ((val/data.indicadores.total_indicado)*100).toFixed(1) : 0;
             const div = document.createElement('div');
             div.className = 'flex items-center justify-between text-sm border-b border-gray-100 pb-2 pt-2 last:border-0';
