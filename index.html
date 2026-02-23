@@ -114,25 +114,10 @@
 
                 <!-- Desktop: controles inline (escondidos no mobile) -->
                 <div class="hidden md:flex items-center gap-4 bg-white/10 backdrop-blur-sm p-2 rounded border border-white/20">
-                    <div class="flex items-center gap-2">
-                        <label for="csvFileInput" title="Planilhas (CSV, Excel)" class="cursor-pointer flex items-center gap-2 bg-white/90 border border-white/30 px-3 py-1.5 rounded text-sm text-primary hover:bg-white transition-colors">
-                            <span class="material-symbols-outlined text-[18px]">table_chart</span>
-                            <span id="file-name-display">Carregar Planilha</span>
-                        </label>
-                        <input type="file" id="csvFileInput" accept=".csv, .xls, .xlsx" class="hidden" />
-
-                        <label for="pdfFileInput" title="Documentos PDF (Até 2022)" class="cursor-pointer flex items-center gap-2 bg-white/90 border border-white/30 px-3 py-1.5 rounded text-sm text-primary hover:bg-white transition-colors">
-                            <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
-                            <span id="pdf-file-name-display">Carregar PDF</span>
-                        </label>
-                        <input type="file" id="pdfFileInput" accept=".pdf, application/pdf" class="hidden" />
-                    </div>
-                    <div class="h-6 w-px bg-white/30"></div>
-                    <!-- Seletor de Ano -->
-                    <div id="anoSelectorContainer" class="hidden flex items-center gap-1">
+                    <!-- Hidden year selector (kept for JS compatibility) -->
+                    <div id="anoSelectorContainer" class="hidden items-center gap-1">
                         <span class="material-symbols-outlined text-[18px] text-white/70">calendar_today</span>
-                        <select id="anoSelector" class="text-sm border border-white/30 rounded px-2 py-1.5 bg-white/90 text-primary focus:border-accent focus:ring-0 cursor-pointer">
-                        </select>
+                        <select id="anoSelector" class="text-sm border border-white/30 rounded px-2 py-1.5 bg-white/90 text-primary focus:border-accent focus:ring-0 cursor-pointer"></select>
                     </div>
                     <div class="h-6 w-px bg-white/30" id="anoDivider" style="display:none"></div>
                     <form id="searchForm" class="flex items-center gap-2 flex-grow">
@@ -168,33 +153,12 @@
                 <span class="material-symbols-outlined text-5xl text-accent/50">person_search</span>
             </div>
             <h2 class="text-2xl font-bold text-primary mb-2">Nenhum parlamentar selecionado</h2>
-            <p class="text-muted max-w-md hidden md:block">Faça o upload do arquivo CSV, Excel ou PDF com as emendas e busque pelo nome do parlamentar para visualizar seu perfil detalhado.</p>
+            <p class="text-muted max-w-md hidden md:block">Busque pelo nome do parlamentar para visualizar o perfil completo com emendas, municípios beneficiados e indicadores de execução.</p>
 
             <!-- Mobile: guia interativo com passos -->
             <div class="md:hidden w-full max-w-sm mt-6 space-y-4">
                 <div class="flex items-start gap-3 text-left bg-accent/5 border border-accent/20 rounded-lg p-4">
                     <span class="flex-shrink-0 w-7 h-7 rounded-full bg-accent text-white text-sm font-bold flex items-center justify-center">1</span>
-                    <div class="flex-grow">
-                        <p class="text-sm font-medium text-primary mb-2">Carregue seus dados</p>
-                        <div class="flex flex-col gap-2">
-                            <label for="csvFileInputMobile" class="cursor-pointer flex items-center gap-2 bg-white border border-primary/15 px-3 py-2.5 rounded-lg text-sm text-primary hover:bg-accent/5 transition-colors active:scale-[0.98]">
-                                <span class="material-symbols-outlined text-accent text-[20px]">table_chart</span>
-                                <span class="font-medium">Planilha (CSV / Excel)</span>
-                            </label>
-                            <input type="file" id="csvFileInputMobile" accept=".csv, .xls, .xlsx" class="hidden" />
-
-                            <label for="pdfFileInputMobile" class="cursor-pointer flex items-center gap-2 bg-white border border-primary/15 px-3 py-2.5 rounded-lg text-sm text-primary hover:bg-accent/5 transition-colors active:scale-[0.98]">
-                                <span class="material-symbols-outlined text-red-500 text-[20px]">picture_as_pdf</span>
-                                <span class="font-medium">Documento PDF</span>
-                            </label>
-                            <input type="file" id="pdfFileInputMobile" accept=".pdf, application/pdf" class="hidden" />
-                        </div>
-                        <p id="mobileUploadStatus" class="text-xs text-success mt-2 hidden"></p>
-                    </div>
-                </div>
-
-                <div class="flex items-start gap-3 text-left bg-gray-50 border border-primary/10 rounded-lg p-4">
-                    <span class="flex-shrink-0 w-7 h-7 rounded-full bg-primary/20 text-primary text-sm font-bold flex items-center justify-center">2</span>
                     <div class="flex-grow">
                         <p class="text-sm font-medium text-primary mb-2">Busque o parlamentar</p>
                         <form id="searchFormMobile" class="flex items-center gap-2">
@@ -245,6 +209,7 @@
                         <span class="flex items-center gap-1">
                             <span class="material-symbols-outlined text-accent text-xl">flag</span>
                             <span id="parlamentarPartido">Partido</span>
+                            <span class="ml-2 text-xs font-semibold uppercase tracking-wider bg-accent/10 text-accent border border-accent/20 px-2 py-0.5 rounded-sm" id="parlamentarTipo"></span>
                         </span>
                     </div>
                 </div>
@@ -356,27 +321,6 @@
                 </button>
             </div>
 
-            <!-- Upload Section -->
-            <div class="space-y-2">
-                <p class="text-xs font-bold uppercase tracking-wider text-muted">Carregar Dados</p>
-                <div class="grid grid-cols-2 gap-3">
-                    <label for="csvFileInputSheet" class="cursor-pointer flex flex-col items-center gap-2 bg-accent/5 border border-accent/20 p-4 rounded-xl text-center hover:bg-accent/10 transition-colors active:scale-[0.97]">
-                        <span class="material-symbols-outlined text-accent text-[28px]">table_chart</span>
-                        <span class="text-xs font-medium text-primary">Planilha</span>
-                        <span class="text-[10px] text-muted">CSV / Excel</span>
-                    </label>
-                    <input type="file" id="csvFileInputSheet" accept=".csv, .xls, .xlsx" class="hidden" />
-
-                    <label for="pdfFileInputSheet" class="cursor-pointer flex flex-col items-center gap-2 bg-red-50 border border-red-200 p-4 rounded-xl text-center hover:bg-red-100/50 transition-colors active:scale-[0.97]">
-                        <span class="material-symbols-outlined text-red-500 text-[28px]">picture_as_pdf</span>
-                        <span class="text-xs font-medium text-primary">PDF</span>
-                        <span class="text-[10px] text-muted">Até 2022</span>
-                    </label>
-                    <input type="file" id="pdfFileInputSheet" accept=".pdf, application/pdf" class="hidden" />
-                </div>
-                <p id="sheetUploadStatus" class="text-xs text-success hidden"></p>
-            </div>
-
             <!-- Year Selector -->
             <div id="anoSelectorSheetContainer" class="hidden space-y-2">
                 <p class="text-xs font-bold uppercase tracking-wider text-muted">Ano</p>
@@ -464,10 +408,6 @@
 
 <!-- Application Script (Backend Fetch) -->
 <script>
-    const fileInput = document.getElementById('csvFileInput');
-    const pdfFileInput = document.getElementById('pdfFileInput');
-    const fileDisplay = document.getElementById('file-name-display');
-    const pdfFileDisplay = document.getElementById('pdf-file-name-display');
     const searchForm = document.getElementById('searchForm');
     const searchInput = document.getElementById('searchInput');
     const anoSelector = document.getElementById('anoSelector');
@@ -481,18 +421,12 @@
     // Mobile elements
     const mobileSheet = document.getElementById('mobileSheet');
     const mobileFab = document.getElementById('mobileFab');
-    const csvFileInputMobile = document.getElementById('csvFileInputMobile');
-    const pdfFileInputMobile = document.getElementById('pdfFileInputMobile');
-    const csvFileInputSheet = document.getElementById('csvFileInputSheet');
-    const pdfFileInputSheet = document.getElementById('pdfFileInputSheet');
     const searchFormMobile = document.getElementById('searchFormMobile');
     const searchInputMobile = document.getElementById('searchInputMobile');
     const searchFormSheet = document.getElementById('searchFormSheet');
     const searchInputSheet = document.getElementById('searchInputSheet');
     const anoSelectorSheet = document.getElementById('anoSelectorSheet');
     const anoSelectorSheetContainer = document.getElementById('anoSelectorSheetContainer');
-    const mobileUploadStatus = document.getElementById('mobileUploadStatus');
-    const sheetUploadStatus = document.getElementById('sheetUploadStatus');
 
     let currentAno = null;
 
@@ -558,19 +492,19 @@
         }
     }
 
-    // Carrega anos disponíveis do servidor ao iniciar
+    // Load available years from API on page load
     async function loadAnos() {
         try {
-            const response = await fetch(`${API_BASE}/api/anos`);
-            const data = await response.json();
+            const resp = await fetch(`${API_BASE}/api/anos`);
+            const data = await resp.json();
             if (data.anos && data.anos.length > 0) {
-                updateAnoSelector(data.anos, data.current);
-                fileDisplay.textContent = `Dados carregados (${data.anos.length} ano${data.anos.length > 1 ? 's' : ''})`;
+                updateAnoSelector(data.anos, data.anos[0]);
             }
         } catch (e) {
-            // Servidor pode não estar rodando ainda
+            // Silently ignore
         }
     }
+    loadAnos();
 
     // Trocar ano selecionado (desktop)
     anoSelector.addEventListener('change', async () => {
@@ -581,9 +515,6 @@
             doSearch(nomeAtual);
         }
     });
-
-    // Carregar anos ao iniciar a página
-    loadAnos();
 
     // Busca foto do parlamentar na Wikipedia
     async function fetchWikipediaPhoto(nome) {
@@ -615,64 +546,6 @@
             // Silenciosamente mantém o ícone padrão
         }
     }
-
-    async function handleFileUpload(e, displayElement, isMobile = false) {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        if (isMobile) {
-            displayElement.classList.remove('hidden');
-            displayElement.textContent = `Carregando ${file.name}...`;
-        } else {
-            displayElement.textContent = file.name;
-        }
-        loadingOverlay.classList.remove('hidden');
-
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const response = await fetch(`${API_BASE}/api/upload`, {
-                method: 'POST',
-                body: formData
-            });
-            const data = await response.json();
-
-            loadingOverlay.classList.add('hidden');
-            if (data.success) {
-                console.log(data.message);
-                if (data.anos_disponiveis) {
-                    updateAnoSelector(data.anos_disponiveis, data.ano);
-                }
-                if (isMobile) {
-                    displayElement.textContent = `${file.name} carregado (${data.ano})`;
-                } else {
-                    displayElement.textContent = `${file.name} (${data.ano})`;
-                }
-                // Also update desktop display
-                fileDisplay.textContent = `${file.name} (${data.ano})`;
-            } else {
-                if (isMobile) displayElement.textContent = '';
-                alert('Erro do Servidor: ' + data.error);
-            }
-        } catch (error) {
-            loadingOverlay.classList.add('hidden');
-            if (isMobile) displayElement.textContent = '';
-            alert('Falha na comunicação com o servidor Flask.');
-        }
-    }
-
-    // Upload handlers (desktop)
-    fileInput.addEventListener('change', (e) => handleFileUpload(e, fileDisplay));
-    pdfFileInput.addEventListener('change', (e) => handleFileUpload(e, pdfFileDisplay));
-
-    // Upload handlers (mobile empty state)
-    csvFileInputMobile.addEventListener('change', (e) => handleFileUpload(e, mobileUploadStatus, true));
-    pdfFileInputMobile.addEventListener('change', (e) => handleFileUpload(e, mobileUploadStatus, true));
-
-    // Upload handlers (mobile bottom sheet)
-    csvFileInputSheet.addEventListener('change', (e) => handleFileUpload(e, sheetUploadStatus, true));
-    pdfFileInputSheet.addEventListener('change', (e) => handleFileUpload(e, sheetUploadStatus, true));
 
     // Sync sheet year selector
     anoSelectorSheet.addEventListener('change', () => {
@@ -739,6 +612,10 @@
         // Headers
         document.getElementById('parlamentarNome').textContent = data.parlamentar.nome;
         document.getElementById('parlamentarPartido').textContent = data.parlamentar.partido;
+        const tipoEl = document.getElementById('parlamentarTipo');
+        if (tipoEl) {
+            tipoEl.textContent = data.parlamentar.tipo === 'vereador' ? 'Vereador de SP' : 'Deputado Estadual';
+        }
 
         // Foto Wikipedia
         fetchWikipediaPhoto(data.parlamentar.nome);
