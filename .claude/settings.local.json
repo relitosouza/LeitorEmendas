@@ -1,7 +1,21 @@
 {
   "permissions": {
     "allow": [
-      "mcp__plugin_playwright_playwright__browser_snapshot"
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(pip install:*)",
+      "Bash(where:*)",
+      "Bash(C:/Users/ricar/AppData/Local/Programs/Python/Python314/Scripts/pytest.exe /c/projects/LeitorEmendas/tests/test_db_utils.py -v)",
+      "Bash(pip show:*)",
+      "Bash(/c/Users/ricar/AppData/Local/Programs/Python/Python314/python.exe -m pytest tests/test_ingest_deputados.py -v)",
+      "Bash(/c/Users/ricar/AppData/Local/Programs/Python/Python314/python.exe -m pytest:*)",
+      "Bash(py:*)",
+      "Bash(/c/Users/ricar/AppData/Local/Programs/Python/Python314/python.exe:*)",
+      "Bash(python3 -m pytest tests/test_ingest_vereadores.py -v)",
+      "Bash(/c/Users/ricar/AppData/Local/Programs/Python/Python314/Scripts/pytest tests/test_ingest_vereadores.py -v)",
+      "Bash(python3 -m pytest:*)"
     ]
   }
 }
