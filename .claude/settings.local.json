@@ -15,7 +15,8 @@
       "Bash(/c/Users/ricar/AppData/Local/Programs/Python/Python314/python.exe:*)",
       "Bash(python3 -m pytest tests/test_ingest_vereadores.py -v)",
       "Bash(/c/Users/ricar/AppData/Local/Programs/Python/Python314/Scripts/pytest tests/test_ingest_vereadores.py -v)",
-      "Bash(python3 -m pytest:*)"
+      "Bash(python3 -m pytest:*)",
+      "Bash(git push:*)"
     ]
   }
 }
