@@ -95,7 +95,8 @@
 <div class="relative flex w-full flex-col bg-gradient-to-r from-primary to-[#1e3a5f] shadow-md">
     <div class="layout-container flex w-full justify-center">
         <div class="layout-content-container flex flex-col w-full max-w-[1400px]">
-            <header class="flex items-center justify-between whitespace-nowrap px-6 py-4 gap-4">
+            <!-- Logo row -->
+            <header class="flex items-center justify-between whitespace-nowrap px-6 pt-4 pb-2 gap-4">
                 <div class="flex items-center gap-4 text-white">
                     <div class="size-8 flex items-center justify-center bg-white/10 rounded-lg p-1.5 backdrop-blur-sm border border-white/20">
                         <span class="material-symbols-outlined text-[32px] text-accent">policy</span>
@@ -105,34 +106,34 @@
                         <span class="text-xs md:text-sm text-white/80 font-medium tracking-wide mt-0.5">O orçamento é público, a fiscalização é sua.</span>
                     </div>
                 </div>
-                
+
                 <!-- Mobile: botão para abrir bottom sheet -->
                 <button id="mobileMenuBtn" class="md:hidden flex items-center gap-2 bg-white/10 border border-white/20 px-3 py-2 rounded text-white text-sm hover:bg-white/20 transition-colors" onclick="openSheet()">
                     <span class="material-symbols-outlined text-[20px]">tune</span>
                     <span>Dados & Busca</span>
                 </button>
-
-                <!-- Desktop: controles inline (escondidos no mobile) -->
-                <div class="hidden md:flex items-center gap-4 bg-white/10 backdrop-blur-sm p-2 rounded border border-white/20">
-                    <!-- Hidden year selector (kept for JS compatibility) -->
-                    <div id="anoSelectorContainer" class="hidden items-center gap-1">
-                        <span class="material-symbols-outlined text-[18px] text-white/70">calendar_today</span>
-                        <select id="anoSelector" class="text-sm border border-white/30 rounded px-2 py-1.5 bg-white/90 text-primary focus:border-accent focus:ring-0 cursor-pointer"></select>
-                    </div>
-                    <div class="h-6 w-px bg-white/30" id="anoDivider" style="display:none"></div>
-                    <form id="searchForm" class="flex items-center gap-2 flex-grow">
-                        <div class="relative flex-grow">
-                            <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted">
-                                <span class="material-symbols-outlined text-[18px]">search</span>
-                            </span>
-                            <input id="searchInput" class="w-full pl-9 pr-3 py-1.5 text-sm border border-white/30 rounded bg-white/90 text-primary focus:border-accent focus:ring-0 placeholder:text-gray-400" placeholder="Digite o nome do Vereador ou Deputado..." type="text"/>
-                        </div>
-                        <button type="submit" class="bg-accent text-white px-3 py-1.5 rounded text-sm font-medium hover:bg-accent/80 transition-colors">
-                            Buscar
-                        </button>
-                    </form>
-                </div>
             </header>
+
+            <!-- Search row (desktop) -->
+            <div class="hidden md:block px-6 pb-4 pt-1">
+                <!-- Hidden year selector (kept for JS compatibility) -->
+                <div id="anoSelectorContainer" class="hidden items-center gap-1 mb-2">
+                    <span class="material-symbols-outlined text-[18px] text-white/70">calendar_today</span>
+                    <select id="anoSelector" class="text-sm border border-white/30 rounded px-2 py-1.5 bg-white/90 text-primary focus:border-accent focus:ring-0 cursor-pointer"></select>
+                </div>
+                <div class="h-6 w-px bg-white/30" id="anoDivider" style="display:none"></div>
+                <form id="searchForm" class="flex items-center gap-2 w-full max-w-[800px]">
+                    <div class="relative flex-grow">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
+                            <span class="material-symbols-outlined text-[20px]">search</span>
+                        </span>
+                        <input id="searchInput" class="w-full pl-10 pr-4 py-2.5 text-base border border-white/30 rounded-lg bg-white/95 text-primary focus:border-accent focus:ring-1 focus:ring-accent/30 placeholder:text-gray-400" placeholder="Digite o nome do Vereador ou Deputado..." type="text"/>
+                    </div>
+                    <button type="submit" class="bg-accent text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-accent/80 transition-colors">
+                        Buscar
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
