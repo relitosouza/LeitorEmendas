@@ -79,37 +79,31 @@ def normalize_deputado_row(row: dict, ano: int) -> dict:
 
 def normalize_vereador_row(row: dict, ano: int) -> dict:
     """
-    Convert a vereador JSON API row to an emendas table row.
-    Field mapping: adjust 'nome_vereador' key to match the real API field name.
+    Convert a vereador XML API row to an emendas table row.
+    XML fields: Numero, Vereador (ID), DataEmenda, IdExercEmp, Motivo
+    Enriched fields: _nome (from Vereadores API), _partido
     """
-    nome = (
-        row.get('nome_vereador')
-        or row.get('nome_parlamentar')
-        or row.get('nome')
-        or ''
-    )
-    status = str(row.get('status', '')).lower()
-    pago = 'pago' in status
+    nome = str(row.get('_nome') or row.get('Vereador') or '').strip()
 
-    data_val = _safe(row.get('data_pagamento') or row.get('data_pago'))
+    data_val = _safe(row.get('DataEmenda'))
     if data_val:
         try:
-            data_val = str(pd.to_datetime(data_val).date())
+            data_val = str(pd.to_datetime(data_val, dayfirst=True).date())
         except Exception:
             data_val = None
 
     return {
         'tipo': 'vereador',
-        'nome': str(nome).strip(),
-        'partido': _safe(row.get('partido')),
+        'nome': nome,
+        'partido': _safe(row.get('_partido')),
         'ano': ano,
-        'municipio': _safe(row.get('municipio')),
-        'funcao': _safe(row.get('funcao') or row.get('funcao_governo')),
-        'beneficiario': _safe(row.get('beneficiario') or row.get('orgao')),
-        'objeto': _safe(row.get('objeto') or row.get('descricao')),
-        'codigo': _safe(row.get('codigo') or row.get('id')),
-        'status': _safe(row.get('status')),
+        'municipio': 'São Paulo',
+        'funcao': None,
+        'beneficiario': None,
+        'objeto': _safe(row.get('Motivo')),
+        'codigo': _safe(row.get('Numero')),
+        'status': None,
         'data_pago': data_val,
-        'valor': parse_moeda(row.get('valor') or row.get('valor_decisao', 0)),
-        'pago': pago,
+        'valor': 0.0,
+        'pago': False,
     }
