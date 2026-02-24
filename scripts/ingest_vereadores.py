@@ -58,6 +58,30 @@ def fetch_vereadores(ano: int) -> dict:
     }
 
 
+def fetch_emendas_valores(ano: int) -> dict:
+    """Fetch amendment values from the Emendas API. Returns NUM_EMENDA → {valor, funcao}."""
+    base_url = os.environ["VEREADORES_API_URL"]
+    url = base_url.rsplit('/', 1)[0] + '/Emendas'
+    response = requests.post(
+        url,
+        data={"exercicio": str(ano)},
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        timeout=120,
+    )
+    response.raise_for_status()
+    rows = _parse_xml_rows(response.content)
+    # Sum values per NUM_EMENDA (same emenda can have multiple dotações)
+    valor_map = {}
+    for row in rows:
+        num = row.get('NUM_EMENDA', '')
+        val = float(row.get('VAL_DOTA_EMD', 0) or 0)
+        funcao = row.get('COD_FCAO_GOVR', '')
+        if num not in valor_map:
+            valor_map[num] = {'valor': 0.0, 'funcao': funcao}
+        valor_map[num]['valor'] += val
+    return valor_map
+
+
 def fetch_data(ano: int) -> list:
     """Fetch vereadores amendment data from the PMSP XML API."""
     base_url = os.environ["VEREADORES_API_URL"]
@@ -71,17 +95,22 @@ def fetch_data(ano: int) -> list:
     return _parse_xml_rows(response.content)
 
 
-def build_rows(raw: list, ano: int, vereadores: dict) -> list:
+def build_rows(raw: list, ano: int, vereadores: dict, valores: dict) -> list:
     """Convert raw XML rows to list of dicts for Supabase insert."""
     rows = []
     for item in raw:
         if not item.get('Numero'):
             continue
-        # Enrich with vereador name and partido from the lookup
+        # Enrich with vereador name and partido
         vid = item.get('Vereador', '')
         info = vereadores.get(vid, {})
         item['_nome'] = info.get('nome', f'Vereador {vid}')
         item['_partido'] = info.get('partido')
+        # Enrich with valor and funcao from Emendas API
+        num = item.get('Numero', '')
+        val_info = valores.get(num, {})
+        item['_valor'] = val_info.get('valor', 0.0)
+        item['_funcao'] = val_info.get('funcao')
         rows.append(normalize_vereador_row(item, ano=ano))
     return rows
 
@@ -91,8 +120,12 @@ def ingest(ano: int, dry_run: bool = False):
     vereadores = fetch_vereadores(ano)
     print(f"Found {len(vereadores)} vereadores")
 
+    print(f"Fetching emendas values for ano={ano}...")
+    valores = fetch_emendas_valores(ano)
+    print(f"Found values for {len(valores)} emendas")
+
     raw = fetch_data(ano)
-    rows = build_rows(raw, ano, vereadores)
+    rows = build_rows(raw, ano, vereadores, valores)
 
     print(f"Fetched {len(rows)} rows for ano={ano}")
 

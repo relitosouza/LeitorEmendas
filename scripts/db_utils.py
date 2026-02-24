@@ -71,6 +71,7 @@ def normalize_deputado_row(row: dict, ano: int) -> dict:
         'objeto': _safe(row.get('objeto')),
         'codigo': _safe(row.get('codigo')),
         'status': _safe(row.get('status')),
+        'natureza': _safe(row.get('natureza')),
         'data_pago': data_val,
         'valor': float(row.get('valor_num', 0.0) or 0.0),
         'pago': bool(row.get('pago_flag', False)),
@@ -92,18 +93,21 @@ def normalize_vereador_row(row: dict, ano: int) -> dict:
         except Exception:
             data_val = None
 
+    valor = float(row.get('_valor', 0) or 0)
+
     return {
         'tipo': 'vereador',
         'nome': nome,
         'partido': _safe(row.get('_partido')),
         'ano': ano,
         'municipio': 'São Paulo',
-        'funcao': None,
+        'funcao': _safe(row.get('_funcao')),
         'beneficiario': None,
         'objeto': _safe(row.get('Motivo')),
         'codigo': _safe(row.get('Numero')),
         'status': None,
+        'natureza': 'Impositiva',
         'data_pago': data_val,
-        'valor': 0.0,
-        'pago': False,
+        'valor': valor,
+        'pago': valor > 0,
     }

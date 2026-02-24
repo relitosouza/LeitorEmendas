@@ -133,6 +133,7 @@ def get_parlamentar_data(query):
             "objeto": str(safe_val(row.get('objeto', ''), '')),
             "destino": str(safe_val(row.get('beneficiario', ''), '')),
             "status": str(safe_val(row.get('status', ''), '')),
+            "natureza": str(safe_val(row.get('natureza', ''), '')),
             "is_pago": bool(row.get('pago_flag', False)),
             "valor_raw": float(safe_val(row.get('valor_num', 0), 0)),
         })

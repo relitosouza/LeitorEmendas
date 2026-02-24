@@ -26,7 +26,7 @@ def process_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         lower_col = str(col).lower().strip()
         if any(k in lower_col for k in ['órgão processador', 'orgao processador',
                                          'primeira fase', 'substituída', 'substituida',
-                                         'natureza', 'valor remanejado']):
+                                         'valor remanejado']):
             colunas_ignoradas.add(col)
 
     col_mapper = {}
@@ -56,6 +56,8 @@ def process_dataframe(df: pd.DataFrame) -> pd.DataFrame:
             col_mapper[col] = 'codigo'; mapped_values.add('codigo')
         elif 'objeto' not in mapped_values and 'objeto' in lower_col:
             col_mapper[col] = 'objeto'; mapped_values.add('objeto')
+        elif 'natureza' not in mapped_values and 'natureza' in lower_col:
+            col_mapper[col] = 'natureza'; mapped_values.add('natureza')
 
     for col in columns_list:
         if col in col_mapper or col in colunas_ignoradas:

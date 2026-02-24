@@ -285,10 +285,11 @@
                         </div>
                     </div>
                     <div class="overflow-x-auto flex-grow max-h-[500px] overflow-y-auto">
-                        <table class="w-full text-left border-collapse relative min-w-[700px]">
+                        <table class="w-full text-left border-collapse relative min-w-[800px]">
                             <thead class="sticky top-0 z-10 bg-white">
                                 <tr class="bg-gradient-to-r from-primary/5 to-accent/5 border-b border-primary/10">
                                     <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display bg-white">Data / Código</th>
+                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display bg-white">Natureza</th>
                                     <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display bg-white">Município / Local</th>
                                     <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display bg-white">Destino</th>
                                     <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display bg-white">Status</th>
@@ -669,9 +670,20 @@
         tbody.innerHTML = '';
         
         data.historico.forEach(row => {
-            const statusBadgeClasses = row.is_pago 
-                ? 'bg-success/10 text-success border-success/20' 
+            const statusBadgeClasses = row.is_pago
+                ? 'bg-success/10 text-success border-success/20'
                 : 'bg-warning/10 text-warning-700 border-warning/20';
+
+            // Natureza badge colors
+            const natureza = (row.natureza || '').trim();
+            let naturezaClasses = 'bg-gray-100 text-gray-600 border-gray-200';
+            if (natureza.toLowerCase().includes('impositiva')) {
+                naturezaClasses = 'bg-blue-50 text-blue-700 border-blue-200';
+            } else if (natureza.toLowerCase().includes('federal')) {
+                naturezaClasses = 'bg-purple-50 text-purple-700 border-purple-200';
+            } else if (natureza.toLowerCase().includes('voluntária') || natureza.toLowerCase().includes('voluntaria')) {
+                naturezaClasses = 'bg-amber-50 text-amber-700 border-amber-200';
+            }
 
             const tr = document.createElement('tr');
             tr.className = 'group hover:bg-blue-50/30 transition-colors cursor-pointer border-b border-gray-100 last:border-0 bg-white';
@@ -679,6 +691,9 @@
                 <td class="py-4 px-4 font-mono text-text-main whitespace-nowrap align-top">
                     <div>${row.data}</div>
                     <div class="text-xs text-muted">${row.codigo}</div>
+                </td>
+                <td class="py-4 px-4 whitespace-nowrap align-top">
+                    ${natureza ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${naturezaClasses}">${natureza}</span>` : '-'}
                 </td>
                 <td class="py-4 px-4 font-medium text-primary align-top max-w-[150px] break-words">
                     ${row.municipio}
