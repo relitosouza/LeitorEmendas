@@ -50,8 +50,22 @@ def add_cors_headers(response):
 @app.route('/api/anos')
 def listar_anos():
     """Return distinct years available in the database."""
-    result = _supabase.table('emendas').select('ano').execute()
-    anos = sorted({row['ano'] for row in result.data}, reverse=True)
+    # Fetch all anos in batches to avoid Supabase default 1000-row limit
+    all_anos = set()
+    offset = 0
+    batch_size = 1000
+    while True:
+        result = (_supabase.table('emendas')
+                  .select('ano')
+                  .range(offset, offset + batch_size - 1)
+                  .execute())
+        if not result.data:
+            break
+        all_anos.update(row['ano'] for row in result.data)
+        if len(result.data) < batch_size:
+            break
+        offset += batch_size
+    anos = sorted(all_anos, reverse=True)
     return jsonify({"anos": anos})
 
 

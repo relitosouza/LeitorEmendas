@@ -96,7 +96,7 @@
     <div class="layout-container flex w-full justify-center">
         <div class="layout-content-container flex flex-col w-full max-w-[1400px]">
             <!-- Logo row -->
-            <header class="flex items-center justify-between whitespace-nowrap px-6 pt-4 pb-2 gap-4">
+            <header class="flex items-center justify-between whitespace-nowrap px-6 py-3 gap-4">
                 <div class="flex items-center gap-4 text-white">
                     <div class="size-8 flex items-center justify-center bg-white/10 rounded-lg p-1.5 backdrop-blur-sm border border-white/20">
                         <span class="material-symbols-outlined text-[32px] text-accent">policy</span>
@@ -113,28 +113,28 @@
                     <span>Dados & Busca</span>
                 </button>
             </header>
-
-            <!-- Search row (desktop) -->
-            <div class="hidden md:block px-6 pb-4 pt-1">
-                <!-- Hidden year selector (kept for JS compatibility) -->
-                <div id="anoSelectorContainer" class="hidden items-center gap-1 mb-2">
-                    <span class="material-symbols-outlined text-[18px] text-white/70">calendar_today</span>
-                    <select id="anoSelector" class="text-sm border border-white/30 rounded px-2 py-1.5 bg-white/90 text-primary focus:border-accent focus:ring-0 cursor-pointer"></select>
-                </div>
-                <div class="h-6 w-px bg-white/30" id="anoDivider" style="display:none"></div>
-                <form id="searchForm" class="flex items-center gap-2 w-full max-w-[800px]">
-                    <div class="relative flex-grow">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
-                            <span class="material-symbols-outlined text-[20px]">search</span>
-                        </span>
-                        <input id="searchInput" class="w-full pl-10 pr-4 py-2.5 text-base border border-white/30 rounded-lg bg-white/95 text-primary focus:border-accent focus:ring-1 focus:ring-accent/30 placeholder:text-gray-400" placeholder="Digite o nome do Vereador ou Deputado..." type="text"/>
-                    </div>
-                    <button type="submit" class="bg-accent text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-accent/80 transition-colors">
-                        Buscar
-                    </button>
-                </form>
-            </div>
         </div>
+    </div>
+</div>
+
+<!-- Search bar (gov.br style) -->
+<div class="hidden md:block w-full bg-white border-b border-gray-200 shadow-sm">
+    <div class="w-full max-w-[1400px] mx-auto px-6 py-5">
+        <!-- Hidden year selector (kept for JS compatibility) -->
+        <div id="anoSelectorContainer" class="hidden items-center gap-1 mb-2">
+            <span class="material-symbols-outlined text-[18px] text-muted">calendar_today</span>
+            <select id="anoSelector" class="text-sm border border-gray-300 rounded px-2 py-1.5 bg-white text-primary focus:border-accent focus:ring-0 cursor-pointer"></select>
+        </div>
+        <div class="h-6 w-px bg-white/30" id="anoDivider" style="display:none"></div>
+        <form id="searchForm" class="flex items-center w-full max-w-[960px] mx-auto">
+            <div class="relative flex-grow">
+                <input id="searchInput" class="w-full pl-5 pr-14 py-4 text-lg border border-gray-300 rounded-l-lg bg-white text-primary focus:border-accent focus:ring-2 focus:ring-accent/20 focus:outline-none placeholder:text-gray-400" placeholder="O que você procura? Ex: Rodrigo Goulart, Tabata Amaral..." type="text"/>
+            </div>
+            <button type="submit" class="bg-accent hover:bg-accent/85 text-white px-6 py-4 rounded-r-lg transition-colors flex items-center gap-2 border border-accent">
+                <span class="material-symbols-outlined text-[22px]">search</span>
+                <span class="font-semibold text-base">Buscar</span>
+            </button>
+        </form>
     </div>
 </div>
 

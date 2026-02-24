@@ -21,7 +21,11 @@
       "Bash(curl:*)",
       "Bash(VEREADORES_API_URL=\"https://app-orcamentows-prd.azurewebsites.net/Servico/IntegracaoPMSP.asmx/EmendasVereadores\" python -m scripts.ingest_vereadores:*)",
       "Bash(python -m scripts.ingest_vereadores:*)",
-      "Bash(python -c:*)"
+      "Bash(python -c:*)",
+      "WebFetch(domain:www.gov.br)",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_take_screenshot",
+      "mcp__plugin_playwright_playwright__browser_close"
     ]
   }
 }
