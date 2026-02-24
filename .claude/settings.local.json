@@ -26,7 +26,9 @@
       "mcp__plugin_playwright_playwright__browser_navigate",
       "mcp__plugin_playwright_playwright__browser_take_screenshot",
       "mcp__plugin_playwright_playwright__browser_close",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(VEREADORES_API_URL=\"https://app-orcamentows-prd.azurewebsites.net/Servico/IntegracaoPMSP.asmx/EmendasVereadores\" python -c:*)",
+      "Bash(export VEREADORES_API_URL=\"https://app-orcamentows-prd.azurewebsites.net/Servico/IntegracaoPMSP.asmx/EmendasVereadores\")"
     ]
   }
 }
