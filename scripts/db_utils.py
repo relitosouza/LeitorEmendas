@@ -78,6 +78,40 @@ def normalize_deputado_row(row: dict, ano: int) -> dict:
     }
 
 
+# Classificação funcional da despesa pública (Portaria MOG nº 42/1999)
+FUNCOES_GOVERNO = {
+    '01': '01 - Legislativa',
+    '02': '02 - Judiciária',
+    '03': '03 - Essencial à Justiça',
+    '04': '04 - Administração',
+    '05': '05 - Defesa Nacional',
+    '06': '06 - Segurança Pública',
+    '07': '07 - Relações Exteriores',
+    '08': '08 - Assistência Social',
+    '09': '09 - Previdência Social',
+    '10': '10 - Saúde',
+    '11': '11 - Trabalho',
+    '12': '12 - Educação',
+    '13': '13 - Cultura',
+    '14': '14 - Direitos da Cidadania',
+    '15': '15 - Urbanismo',
+    '16': '16 - Habitação',
+    '17': '17 - Saneamento',
+    '18': '18 - Gestão Ambiental',
+    '19': '19 - Ciência e Tecnologia',
+    '20': '20 - Agricultura',
+    '21': '21 - Organização Agrária',
+    '22': '22 - Indústria',
+    '23': '23 - Comércio e Serviços',
+    '24': '24 - Comunicações',
+    '25': '25 - Energia',
+    '26': '26 - Transporte',
+    '27': '27 - Desporto e Lazer',
+    '28': '28 - Encargos Especiais',
+    '99': '99 - Reserva de Contingência',
+}
+
+
 def normalize_vereador_row(row: dict, ano: int) -> dict:
     """
     Convert a vereador XML API row to an emendas table row.
@@ -101,7 +135,7 @@ def normalize_vereador_row(row: dict, ano: int) -> dict:
         'partido': _safe(row.get('_partido')),
         'ano': ano,
         'municipio': 'São Paulo',
-        'funcao': _safe(row.get('_funcao')),
+        'funcao': FUNCOES_GOVERNO.get(str(row.get('_funcao', '')).strip(), _safe(row.get('_funcao'))),
         'beneficiario': None,
         'objeto': _safe(row.get('Motivo')),
         'codigo': _safe(row.get('Numero')),

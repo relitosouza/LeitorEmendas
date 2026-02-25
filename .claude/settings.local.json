@@ -28,7 +28,10 @@
       "mcp__plugin_playwright_playwright__browser_close",
       "Bash(python3:*)",
       "Bash(VEREADORES_API_URL=\"https://app-orcamentows-prd.azurewebsites.net/Servico/IntegracaoPMSP.asmx/EmendasVereadores\" python -c:*)",
-      "Bash(export VEREADORES_API_URL=\"https://app-orcamentows-prd.azurewebsites.net/Servico/IntegracaoPMSP.asmx/EmendasVereadores\")"
+      "Bash(export VEREADORES_API_URL=\"https://app-orcamentows-prd.azurewebsites.net/Servico/IntegracaoPMSP.asmx/EmendasVereadores\")",
+      "Bash(python scripts/ingest_deputados.py:*)",
+      "Bash(VEREADORES_API_URL='https://app-orcamentows-prd.azurewebsites.net/Servico/IntegracaoPMSP.asmx/EmendasVereadores' python:*)",
+      "Bash(VEREADORES_API_URL='https://app-orcamentows-prd.azurewebsites.net/Servico/IntegracaoPMSP.asmx/EmendasVereadores' python -c:*)"
     ]
   }
 }
