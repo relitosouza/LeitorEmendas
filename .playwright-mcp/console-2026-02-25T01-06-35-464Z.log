@@ -1,0 +1,2 @@
+[     270ms] [WARNING] cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation @ https://cdn.tailwindcss.com/?plugins=forms,container-queries:63
+[     436ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/api/anos:0
