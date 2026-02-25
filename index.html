@@ -322,8 +322,8 @@
                 <p id="modalMunicipio" class="text-lg font-semibold text-gray-900"></p>
             </div>
             <div>
-                <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Destino</p>
-                <p id="modalDestino" class="text-lg font-semibold text-gray-900"></p>
+                <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Objeto</p>
+                <p id="modalObjeto" class="text-sm text-gray-900 leading-relaxed"></p>
             </div>
             <div>
                 <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Valor</p>
@@ -477,9 +477,9 @@
     }
 
     // --- Emenda Detail Modal ---
-    function openEmendaModal(municipio, destino, valorRaw) {
+    function openEmendaModal(municipio, objeto, valorRaw) {
         document.getElementById('modalMunicipio').textContent = municipio;
-        document.getElementById('modalDestino').textContent = destino;
+        document.getElementById('modalObjeto').textContent = objeto;
         document.getElementById('modalValor').textContent = formatCurrency(valorRaw);
         const modal = document.getElementById('emendaModal');
         modal.classList.remove('hidden');
@@ -772,7 +772,7 @@
                 </td>
             `;
             tr.addEventListener('click', () => {
-                openEmendaModal(row.municipio, row.destino, row.valor_raw);
+                openEmendaModal(row.municipio, row.objeto, row.valor_raw);
             });
             tbody.appendChild(tr);
         });
