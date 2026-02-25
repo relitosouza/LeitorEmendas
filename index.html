@@ -307,6 +307,32 @@
     </div>
 </main>
 
+<!-- Emenda Detail Modal -->
+<div id="emendaModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden transition-opacity duration-200 opacity-0" onclick="if(event.target===this)closeEmendaModal()">
+    <div id="emendaModalCard" class="bg-white rounded-2xl shadow-2xl p-6 mx-4 max-w-md w-full transform transition-transform duration-200 scale-95">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-primary font-display">Detalhes da Emenda</h3>
+            <button onclick="closeEmendaModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
+                <span class="material-symbols-outlined text-gray-400 hover:text-gray-600">close</span>
+            </button>
+        </div>
+        <div class="space-y-5">
+            <div>
+                <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Município</p>
+                <p id="modalMunicipio" class="text-lg font-semibold text-gray-900"></p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Destino</p>
+                <p id="modalDestino" class="text-lg font-semibold text-gray-900"></p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Valor</p>
+                <p id="modalValor" class="text-2xl font-bold text-blue-600"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Mobile Bottom Sheet -->
 <div id="mobileSheet" class="fixed inset-0 z-50 hidden md:hidden">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-[2px] sheet-overlay" onclick="closeSheet()"></div>
@@ -449,6 +475,38 @@
             document.body.style.overflow = '';
         }, 300);
     }
+
+    // --- Emenda Detail Modal ---
+    function openEmendaModal(municipio, destino, valorRaw) {
+        document.getElementById('modalMunicipio').textContent = municipio;
+        document.getElementById('modalDestino').textContent = destino;
+        document.getElementById('modalValor').textContent = formatCurrency(valorRaw);
+        const modal = document.getElementById('emendaModal');
+        modal.classList.remove('hidden');
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                document.getElementById('emendaModalCard').classList.remove('scale-95');
+            });
+        });
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeEmendaModal() {
+        const modal = document.getElementById('emendaModal');
+        modal.classList.add('opacity-0');
+        document.getElementById('emendaModalCard').classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }, 200);
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !document.getElementById('emendaModal').classList.contains('hidden')) {
+            closeEmendaModal();
+        }
+    });
 
     // Show/hide FAB based on dashboard visibility
     function updateFabVisibility() {
@@ -713,6 +771,9 @@
                     ${formatCurrency(row.valor_raw)}
                 </td>
             `;
+            tr.addEventListener('click', () => {
+                openEmendaModal(row.municipio, row.destino, row.valor_raw);
+            });
             tbody.appendChild(tr);
         });
 
