@@ -522,6 +522,13 @@
     // Base URL dinâmica - funciona local e no Vercel
     const API_BASE = window.location.origin;
 
+    const formatDate = (value) => {
+        if (!value || value === '-') return '-';
+        const parts = value.split('-');
+        if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        return value;
+    };
+
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('pt-BR', {
             style: 'currency',
@@ -747,7 +754,7 @@
             tr.className = 'group hover:bg-blue-50/30 transition-colors cursor-pointer border-b border-gray-100 last:border-0 bg-white';
             tr.innerHTML = `
                 <td class="py-4 px-4 font-mono text-text-main whitespace-nowrap align-top">
-                    <div>${row.data}</div>
+                    <div>${formatDate(row.data)}</div>
                     <div class="text-xs text-muted">${row.codigo}</div>
                 </td>
                 <td class="py-4 px-4 whitespace-nowrap align-top">
