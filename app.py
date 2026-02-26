@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template_string
 import pandas as pd
 import numpy as np
 import os
+import requests
 import math
 from dotenv import load_dotenv
 from supabase import create_client, Client
@@ -36,6 +37,23 @@ def safe_val(val, default='-'):
     except (TypeError, ValueError):
         pass
     return val
+
+def get_camara_info(nome):
+    try:
+        url = "https://dadosabertos.camara.leg.br/api/v2/deputados"
+        params = {"nome": nome, "ordem": "ASC", "ordenarPor": "nome"}
+        resp = requests.get(url, params=params, timeout=5)
+        if resp.status_code == 200:
+            dados = resp.json().get('dados', [])
+            if dados:
+                return {
+                    "foto": dados[0].get('urlFoto', ''),
+                    "partido": dados[0].get('siglaPartido', ''),
+                    "uf": dados[0].get('siglaUf', '')
+                }
+    except Exception:
+        pass
+    return None
 
 
 # ── CORS ─────────────────────────────────────────────────────────────────────
@@ -95,6 +113,17 @@ def get_parlamentar_data(query):
     partido_real = safe_val(first.get('partido'), '-')
     tipo_real = safe_val(first.get('tipo'), 'deputado')
 
+    foto_url = ""
+    uf_real = ""
+
+    if tipo_real.lower() == 'deputado':
+        camara_info = get_camara_info(nome_real)
+        if camara_info:
+            foto_url = camara_info.get('foto', '')
+            if camara_info.get('partido'):
+                partido_real = camara_info['partido']
+            uf_real = camara_info.get('uf', '')
+
     total_val = float(df['valor_num'].sum())
     total_pagos = float(df[df['pago_flag']]['valor_num'].sum())
     pct_pago = (total_pagos / total_val * 100) if total_val > 0 else 0
@@ -144,6 +173,8 @@ def get_parlamentar_data(query):
             "nome": nome_real,
             "partido": partido_real,
             "tipo": tipo_real,
+            "foto": foto_url,
+            "uf": uf_real
         },
         "indicadores": {
             "total_indicado": total_val,

@@ -681,11 +681,27 @@
         document.getElementById('parlamentarPartido').textContent = data.parlamentar.partido;
         const tipoEl = document.getElementById('parlamentarTipo');
         if (tipoEl) {
-            tipoEl.textContent = data.parlamentar.tipo === 'vereador' ? 'Vereador de SP' : 'Deputado Estadual';
+            let textTipo = data.parlamentar.tipo === 'vereador' ? 'Vereador de SP' : 'Deputado Federal';
+            if (data.parlamentar.uf) textTipo += ` (${data.parlamentar.uf})`;
+            tipoEl.textContent = textTipo;
         }
 
-        // Foto Wikipedia
-        fetchWikipediaPhoto(data.parlamentar.nome);
+        const avatarIcon = document.getElementById('avatarIcon');
+        const avatarImg = document.getElementById('avatarImg');
+        avatarIcon.classList.remove('hidden');
+        avatarImg.classList.add('hidden');
+        avatarImg.src = '';
+
+        if (data.parlamentar.foto) {
+            avatarImg.src = data.parlamentar.foto;
+            avatarImg.onload = () => {
+                avatarIcon.classList.add('hidden');
+                avatarImg.classList.remove('hidden');
+            };
+        } else {
+            // Foto Wikipedia fallback
+            fetchWikipediaPhoto(data.parlamentar.nome);
+        }
 
         // Indicadores (Cards)
         document.getElementById('valorTotalIndicado').textContent = formatCurrency(data.indicadores.total_indicado);
