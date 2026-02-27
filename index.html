@@ -141,9 +141,19 @@
 </div>
 <div class="grid grid-cols-12 gap-8">
 <div class="col-span-12 lg:col-span-8 space-y-8">
-<!-- <div class="bg-pure-white border border-slate-border rounded-xl p-8 relative shadow-sm">
-... Chart section removed for brevity as it's static in the template ...
-</div> -->
+<!-- Chart: Emendas por Ano -->
+<div id="chartCard" class="bg-pure-white border border-slate-border rounded-xl p-6 shadow-sm hidden">
+    <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-bold text-text-main flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">bar_chart</span>
+            Emendas por Ano
+        </h3>
+        <span id="chartTotal" class="text-xs font-mono font-bold text-text-muted"></span>
+    </div>
+    <div id="chartBars" class="space-y-3">
+        <!-- Bars will be injected here -->
+    </div>
+</div>
 <div class="bg-pure-white border border-slate-border rounded-xl overflow-hidden shadow-sm">
 <div class="p-6 border-b border-slate-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 <h3 class="text-lg font-bold text-text-main flex items-center gap-2">
@@ -462,6 +472,36 @@
             data.partidos.slice(0, 3).forEach(partido => {
                 partidosContainer.innerHTML += `<span class="px-2 py-0.5 rounded bg-ghost-white border border-slate-border text-[10px] font-bold text-text-muted">${partido}</span>`;
             });
+        }
+
+        // Chart: aggregate by year
+        const yearMap = {};
+        data.historico.forEach(row => {
+            const yr = row.ano || '-';
+            yearMap[yr] = (yearMap[yr] || 0) + (row.valor_raw || 0);
+        });
+        const yearEntries = Object.entries(yearMap).sort((a, b) => a[0].localeCompare(b[0]));
+        const chartCard = document.getElementById('chartCard');
+        const chartBars = document.getElementById('chartBars');
+        const chartTotal = document.getElementById('chartTotal');
+
+        if (yearEntries.length > 0) {
+            chartCard.classList.remove('hidden');
+            const maxVal = Math.max(...yearEntries.map(e => e[1]));
+            chartTotal.textContent = `${yearEntries.length} ano(s)`;
+            chartBars.innerHTML = yearEntries.map(([year, val]) => {
+                const pct = maxVal > 0 ? (val / maxVal * 100) : 0;
+                return `
+                <div class="flex items-center gap-3">
+                    <span class="w-12 text-xs font-mono font-bold text-text-muted text-right shrink-0">${year}</span>
+                    <div class="flex-1 bg-ghost-white rounded overflow-hidden h-7 relative">
+                        <div class="h-full bg-primary/80 rounded transition-all duration-500" style="width:${pct.toFixed(1)}%"></div>
+                    </div>
+                    <span class="w-28 text-xs font-mono font-bold text-text-main text-right shrink-0">${formatCurrency(val)}</span>
+                </div>`;
+            }).join('');
+        } else {
+            chartCard.classList.add('hidden');
         }
 
         // Table
