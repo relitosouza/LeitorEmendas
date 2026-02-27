@@ -320,7 +320,13 @@ def get_parlamentar_data(query):
 
 
 @app.route('/')
-def index():
+def home():
+    with open('home.html', 'r', encoding='utf-8') as f:
+        return render_template_string(f.read())
+
+
+@app.route('/municipios')
+def municipios():
     with open('index.html', 'r', encoding='utf-8') as f:
         return render_template_string(f.read())
 

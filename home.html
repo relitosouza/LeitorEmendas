@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Home - Lupa Cidadã</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=IBM+Plex+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "primary": "#1354ec",
+                    "background-light": "#f6f6f8",
+                    "background-dark": "#101622",
+                },
+                fontFamily: {
+                    "display": ["Space Grotesk", "sans-serif"],
+                    "body": ["IBM Plex Sans", "sans-serif"]
+                },
+                borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+        },
+    }
+</script>
+<style>
+    body {
+        font-family: 'IBM Plex Sans', sans-serif;
+    }
+    h1, h2, h3, h4, .font-display {
+        font-family: 'Space Grotesk', sans-serif;
+    }
+</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+
+<!-- Header -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark px-6 py-4 lg:px-20">
+    <div class="flex items-center gap-3">
+        <div class="text-primary">
+            <span class="material-symbols-outlined text-4xl">search_insights</span>
+        </div>
+        <h2 class="text-slate-900 dark:text-slate-100 text-xl font-bold leading-tight tracking-tight font-display">Lupa Cidadã</h2>
+    </div>
+    <div class="flex flex-1 justify-end gap-8 items-center">
+        <nav class="hidden md:flex items-center gap-8">
+            <a class="text-slate-700 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="/">Início</a>
+            <a class="text-slate-700 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="/parlamentar">Parlamentares</a>
+            <a class="text-slate-700 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="/municipios">Municípios</a>
+            <a class="text-slate-700 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="#">Sobre</a>
+        </nav>
+        <button class="flex min-w-[100px] cursor-pointer items-center justify-center rounded-lg h-10 px-5 bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-all">
+            <span>Entrar</span>
+        </button>
+    </div>
+</header>
+
+<main class="flex-1">
+
+<!-- Hero Section -->
+<section class="bg-white dark:bg-background-dark border-b border-slate-100 dark:border-slate-800">
+    <div class="max-w-[1200px] mx-auto px-6 py-16 lg:py-24">
+        <div class="flex flex-col lg:flex-row gap-12 items-center">
+            <div class="flex flex-col gap-8 flex-1">
+                <div class="flex flex-col gap-4 text-left">
+                    <h1 class="text-slate-900 dark:text-slate-100 text-5xl lg:text-6xl font-black leading-[1.1] tracking-tight font-display">
+                        Transparência em cada centavo
+                    </h1>
+                    <p class="text-slate-600 dark:text-slate-400 text-lg max-w-xl">
+                        Acompanhe o destino das emendas parlamentares e fortaleça o controle social no Brasil. Transformamos dados complexos em informação clara para você.
+                    </p>
+                </div>
+                <div class="w-full max-w-2xl">
+                    <form id="searchForm" class="flex w-full items-stretch rounded-xl h-16 shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900">
+                        <div class="text-slate-400 flex items-center justify-center pl-6">
+                            <span class="material-symbols-outlined">search</span>
+                        </div>
+                        <input id="searchInput" class="flex-1 bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 px-4 text-base placeholder:text-slate-400" placeholder="Buscar por Cidade, Deputado ou Senador..." />
+                        <div class="flex items-center pr-2">
+                            <button type="submit" class="h-12 px-8 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-all">
+                                Pesquisar
+                            </button>
+                        </div>
+                    </form>
+                    <div class="mt-3 flex gap-2 items-center text-sm text-slate-500">
+                        <span>Exemplos:</span>
+                        <a class="underline hover:text-primary search-example" href="#" data-query="São Paulo">São Paulo</a>,
+                        <a class="underline hover:text-primary search-example" href="#" data-query="Saúde">Saúde</a>,
+                        <a class="underline hover:text-primary search-example" href="#" data-query="Arthur Lira">Arthur Lira</a>
+                    </div>
+                </div>
+            </div>
+            <div class="hidden lg:block flex-1">
+                <div class="w-full aspect-square bg-gradient-to-br from-primary/10 to-primary/5 rounded-3xl flex items-center justify-center p-8 border border-primary/10 relative overflow-hidden">
+                    <span class="material-symbols-outlined text-[200px] text-primary/20 absolute -bottom-10 -right-10">analytics</span>
+                    <div class="relative z-10 grid grid-cols-2 gap-4 w-full">
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700">
+                            <div class="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 mb-4">
+                                <span class="material-symbols-outlined">payments</span>
+                            </div>
+                            <div class="h-2 w-12 bg-slate-200 dark:bg-slate-700 rounded-full mb-2"></div>
+                            <div class="h-4 w-20 bg-slate-100 dark:bg-slate-600 rounded-full"></div>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 mt-8">
+                            <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 mb-4">
+                                <span class="material-symbols-outlined">person</span>
+                            </div>
+                            <div class="h-2 w-16 bg-slate-200 dark:bg-slate-700 rounded-full mb-2"></div>
+                            <div class="h-4 w-12 bg-slate-100 dark:bg-slate-600 rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Cards -->
+<section class="max-w-[1200px] mx-auto px-6 -mt-10 mb-16 relative z-20">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="flex flex-col gap-3 rounded-2xl p-8 bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-slate-800">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wider">Total de Emendas 2024</p>
+            <p class="text-slate-900 dark:text-slate-100 text-3xl font-bold font-display">R$ 24.5 Bilhões</p>
+            <div class="flex items-center gap-2 text-green-600 text-sm font-semibold">
+                <span class="material-symbols-outlined text-sm">trending_up</span>
+                <span>+15% em relação a 2023</span>
+            </div>
+        </div>
+        <div class="flex flex-col gap-3 rounded-2xl p-8 bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-slate-800">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wider">Valor Pago até o momento</p>
+            <p class="text-slate-900 dark:text-slate-100 text-3xl font-bold font-display">R$ 12.8 Bilhões</p>
+            <div class="flex items-center gap-2 text-primary text-sm font-semibold">
+                <span class="material-symbols-outlined text-sm">schedule</span>
+                <span>52% do total aprovado</span>
+            </div>
+        </div>
+        <div class="flex flex-col gap-3 rounded-2xl p-8 bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-slate-800">
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wider">Cidades Beneficiadas</p>
+            <p class="text-slate-900 dark:text-slate-100 text-3xl font-bold font-display">4.230</p>
+            <div class="flex items-center gap-2 text-green-600 text-sm font-semibold">
+                <span class="material-symbols-outlined text-sm">location_city</span>
+                <span>76% dos municípios brasileiros</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Access -->
+<section class="max-w-[1200px] mx-auto px-6 mb-20">
+    <div class="flex items-end justify-between mb-8">
+        <div>
+            <h2 class="text-slate-900 dark:text-slate-100 text-3xl font-bold font-display">Acesso Rápido</h2>
+            <p class="text-slate-500 mt-1">Navegue pelos principais eixos de transparência</p>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <a class="group flex flex-col gap-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 transition-all hover:border-primary/50 hover:shadow-lg" href="/parlamentar">
+            <div class="w-14 h-14 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+                <span class="material-symbols-outlined text-3xl">account_balance</span>
+            </div>
+            <div class="flex flex-col gap-2">
+                <h3 class="text-slate-900 dark:text-slate-100 text-xl font-bold font-display">Parlamentares</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Consulte os gastos detalhados por cada deputado federal e senador de sua região.</p>
+            </div>
+        </a>
+        <a class="group flex flex-col gap-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 transition-all hover:border-primary/50 hover:shadow-lg" href="/municipios">
+            <div class="w-14 h-14 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+                <span class="material-symbols-outlined text-3xl">map</span>
+            </div>
+            <div class="flex flex-col gap-2">
+                <h3 class="text-slate-900 dark:text-slate-100 text-xl font-bold font-display">Municípios</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Veja quanto sua cidade recebeu em recursos e em quais obras o dinheiro foi aplicado.</p>
+            </div>
+        </a>
+        <a class="group flex flex-col gap-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 transition-all hover:border-primary/50 hover:shadow-lg" href="#">
+            <div class="w-14 h-14 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+                <span class="material-symbols-outlined text-3xl">flowsheet</span>
+            </div>
+            <div class="flex flex-col gap-2">
+                <h3 class="text-slate-900 dark:text-slate-100 text-xl font-bold font-display">Fluxo da Verba</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Entenda o caminho burocrático desde a indicação política até o pagamento final.</p>
+            </div>
+        </a>
+    </div>
+</section>
+
+<!-- Highlights & Map Section -->
+<section class="bg-slate-50 dark:bg-slate-900/50 py-20 border-y border-slate-200 dark:border-slate-800">
+    <div class="max-w-[1200px] mx-auto px-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+            <div>
+                <h2 class="text-slate-900 dark:text-slate-100 text-3xl font-bold font-display mb-4">Destaques Recentes</h2>
+                <p class="text-slate-500 mb-8">Últimas emendas liberadas e atualizações de empenho no sistema nacional.</p>
+                <div class="flex flex-col gap-4">
+                    <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center gap-6 shadow-sm">
+                        <div class="w-12 h-12 rounded-lg bg-green-50 text-green-600 flex items-center justify-center flex-shrink-0">
+                            <span class="material-symbols-outlined">check_circle</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="font-bold text-slate-900 dark:text-slate-100">Reforma de UBS - Curitiba/PR</h4>
+                                <span class="text-xs font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">R$ 450.000</span>
+                            </div>
+                            <p class="text-sm text-slate-500">Indicada por: Dep. Federal Maria Silva</p>
+                            <p class="text-xs text-slate-400 mt-1">Liberado há 2 horas</p>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center gap-6 shadow-sm">
+                        <div class="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
+                            <span class="material-symbols-outlined">school</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="font-bold text-slate-900 dark:text-slate-100">Equipamentos Digitais - Escolas Manaus/AM</h4>
+                                <span class="text-xs font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">R$ 1.2M</span>
+                            </div>
+                            <p class="text-sm text-slate-500">Indicada por: Senador João Rocha</p>
+                            <p class="text-xs text-slate-400 mt-1">Liberado há 5 horas</p>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center gap-6 shadow-sm">
+                        <div class="w-12 h-12 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center flex-shrink-0">
+                            <span class="material-symbols-outlined">engineering</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="font-bold text-slate-900 dark:text-slate-100">Saneamento Básico - Juazeiro/BA</h4>
+                                <span class="text-xs font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">R$ 890.000</span>
+                            </div>
+                            <p class="text-sm text-slate-500">Indicada por: Dep. Federal Carlos Lima</p>
+                            <p class="text-xs text-slate-400 mt-1">Liberado há 8 horas</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="mt-8 text-primary font-bold flex items-center gap-2 hover:gap-3 transition-all">
+                    Ver todas as liberações <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+            </div>
+            <div class="flex flex-col">
+                <h2 class="text-slate-900 dark:text-slate-100 text-3xl font-bold font-display mb-4">Distribuição Geográfica</h2>
+                <p class="text-slate-500 mb-8">Visualize onde os recursos federais estão sendo aplicados em tempo real.</p>
+                <div class="flex-1 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm flex flex-col min-h-[400px]">
+                    <div class="w-full flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-lg overflow-hidden relative">
+                        <div class="absolute inset-0 flex items-center justify-center flex-col p-4 text-center">
+                            <span class="material-symbols-outlined text-6xl text-slate-300 dark:text-slate-600 mb-4">map</span>
+                            <p class="text-slate-400 text-sm max-w-xs">Mapa interativo do Brasil com distribuição proporcional por estado.</p>
+                            <div class="mt-4 flex gap-2">
+                                <div class="h-2 w-8 bg-primary/20 rounded"></div>
+                                <div class="h-2 w-12 bg-primary/50 rounded"></div>
+                                <div class="h-2 w-16 bg-primary rounded"></div>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-4 left-4 right-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur p-4 rounded-lg flex justify-between items-center text-xs">
+                            <div class="flex flex-col gap-1">
+                                <span class="font-bold text-slate-900 dark:text-slate-100">Região Nordeste</span>
+                                <span class="text-slate-500">R$ 8.4 Bilhões (34.2%)</span>
+                            </div>
+                            <div class="flex flex-col gap-1 text-right">
+                                <span class="font-bold text-slate-900 dark:text-slate-100">Região Sudeste</span>
+                                <span class="text-slate-500">R$ 7.1 Bilhões (28.9%)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<!-- Footer -->
+<footer class="bg-white dark:bg-background-dark border-t border-slate-200 dark:border-slate-800 px-6 py-12 lg:px-20">
+    <div class="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+        <div class="col-span-1 md:col-span-1 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+                <div class="text-primary">
+                    <span class="material-symbols-outlined text-3xl">search_insights</span>
+                </div>
+                <h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold font-display">Lupa Cidadã</h2>
+            </div>
+            <p class="text-slate-500 text-sm leading-relaxed">
+                Plataforma independente de monitoramento de gastos públicos e emendas parlamentares no Brasil.
+            </p>
+        </div>
+        <div>
+            <h4 class="font-bold text-slate-900 dark:text-slate-100 mb-6 font-display">Navegação</h4>
+            <ul class="flex flex-col gap-3 text-sm text-slate-500">
+                <li><a class="hover:text-primary transition-colors" href="#">Portal da Transparência</a></li>
+                <li><a class="hover:text-primary transition-colors" href="#">Câmara dos Deputados</a></li>
+                <li><a class="hover:text-primary transition-colors" href="#">Senado Federal</a></li>
+                <li><a class="hover:text-primary transition-colors" href="#">Dados Abertos</a></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold text-slate-900 dark:text-slate-100 mb-6 font-display">Recursos</h4>
+            <ul class="flex flex-col gap-3 text-sm text-slate-500">
+                <li><a class="hover:text-primary transition-colors" href="#">Documentação da API</a></li>
+                <li><a class="hover:text-primary transition-colors" href="#">Metodologia</a></li>
+                <li><a class="hover:text-primary transition-colors" href="#">Glossário Legislativo</a></li>
+                <li><a class="hover:text-primary transition-colors" href="#">Reportar Erro</a></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold text-slate-900 dark:text-slate-100 mb-6 font-display">Contato</h4>
+            <ul class="flex flex-col gap-3 text-sm text-slate-500">
+                <li>contato@lupacidada.org.br</li>
+                <li>Brasília, DF</li>
+                <li class="flex gap-4 mt-2">
+                    <a class="text-slate-400 hover:text-primary transition-colors" href="#">
+                        <span class="material-symbols-outlined">share</span>
+                    </a>
+                    <a class="text-slate-400 hover:text-primary transition-colors" href="#">
+                        <span class="material-symbols-outlined">mail</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="max-w-[1200px] mx-auto mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400">
+        <p>© 2024 Lupa Cidadã - Dados de livre consulta. Todos os direitos reservados.</p>
+        <div class="flex gap-6">
+            <a class="hover:underline" href="#">Privacidade</a>
+            <a class="hover:underline" href="#">Termos de Uso</a>
+        </div>
+    </div>
+</footer>
+
+</div>
+</div>
+
+<script>
+    // Search form handling
+    document.getElementById('searchForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const query = document.getElementById('searchInput').value.trim();
+        if (!query) return;
+        // Try municipality first, then redirect to municipios page with the search
+        window.location.href = '/municipios?q=' + encodeURIComponent(query);
+    });
+
+    // Example search links
+    document.querySelectorAll('.search-example').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            var query = this.getAttribute('data-query');
+            document.getElementById('searchInput').value = query;
+            document.getElementById('searchForm').dispatchEvent(new Event('submit'));
+        });
+    });
+</script>
+</body>
+</html>
