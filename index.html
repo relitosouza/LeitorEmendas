@@ -712,8 +712,10 @@
         document.getElementById('parlamentarPartido').textContent = data.parlamentar.partido;
         const tipoEl = document.getElementById('parlamentarTipo');
         if (tipoEl) {
-            let textTipo = data.parlamentar.tipo === 'vereador' ? 'Vereador de SP' : 'Deputado Federal';
-            if (data.parlamentar.uf) textTipo += ` (${data.parlamentar.uf})`;
+            let textTipo = data.parlamentar.tipo;
+            if (data.parlamentar.uf && textTipo === 'Deputado Federal') {
+                textTipo += ` (${data.parlamentar.uf})`;
+            }
             tipoEl.textContent = textTipo;
         }
 

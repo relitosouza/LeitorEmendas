@@ -134,14 +134,18 @@ def get_parlamentar_data(query):
 
     foto_url = ""
     uf_real = ""
+    tipo_exibicao = "Deputado Estadual"
 
-    if tipo_real.lower() == 'deputado':
+    if tipo_real.lower() == 'vereador':
+        tipo_exibicao = "Vereador de SP"
+    elif 'deputado' in tipo_real.lower():
         camara_info = get_camara_info(nome_real)
         if camara_info:
             foto_url = camara_info.get('foto', '')
             if camara_info.get('partido'):
                 partido_real = camara_info['partido']
             uf_real = camara_info.get('uf', '')
+            tipo_exibicao = "Deputado Federal"
 
     total_val = float(df['valor_num'].sum())
     total_pagos = float(df[df['pago_flag']]['valor_num'].sum())
@@ -191,7 +195,7 @@ def get_parlamentar_data(query):
         "parlamentar": {
             "nome": nome_real,
             "partido": partido_real,
-            "tipo": tipo_real,
+            "tipo": tipo_exibicao,
             "foto": foto_url,
             "uf": uf_real
         },
