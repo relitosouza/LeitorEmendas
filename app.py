@@ -86,6 +86,25 @@ def listar_anos():
     anos = sorted(all_anos, reverse=True)
     return jsonify({"anos": anos})
 
+@app.route('/api/search_nomes')
+def search_nomes():
+    """Return a list of unique names matching a query for autocomplete."""
+    query = request.args.get('q', '').strip().lower()
+    if not query:
+        return jsonify([])
+
+    # Buscando de forma simples, limitando para não estourar memória
+    result = _supabase.table('emendas').select('nome').ilike('nome', f'%{query}%').limit(1000).execute()
+    
+    names_set = set()
+    for row in result.data:
+        if row.get('nome'):
+            names_set.add(row['nome'].strip())
+            
+    # Ordenar em ordem alfabética para facilitar
+    sorted_names = sorted(list(names_set))
+    return jsonify(sorted_names)
+
 
 @app.route('/api/parlamentar/<path:query>')
 def get_parlamentar_data(query):

@@ -128,7 +128,7 @@
         <div class="h-6 w-px bg-white/30" id="anoDivider" style="display:none"></div>
         <form id="searchForm" class="flex items-center w-full max-w-[960px] mx-auto">
             <div class="relative flex-grow">
-                <input id="searchInput" class="w-full pl-5 pr-14 py-4 text-lg border border-gray-300 rounded-l-lg bg-white text-primary focus:border-accent focus:ring-2 focus:ring-accent/20 focus:outline-none placeholder:text-gray-400" placeholder="O que você procura? Ex: Rodrigo Goulart, Tabata Amaral..." type="text"/>
+                <input id="searchInput" list="parlamentares-list" class="w-full pl-5 pr-14 py-4 text-lg border border-gray-300 rounded-l-lg bg-white text-primary focus:border-accent focus:ring-2 focus:ring-accent/20 focus:outline-none placeholder:text-gray-400" placeholder="O que você procura? Ex: Rodrigo Goulart, Tabata Amaral..." type="text"/>
             </div>
             <button type="submit" class="bg-accent hover:bg-accent/85 text-white px-6 py-4 rounded-r-lg transition-colors flex items-center gap-2 border border-accent">
                 <span class="material-symbols-outlined text-[22px]">search</span>
@@ -167,7 +167,7 @@
                                 <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted">
                                     <span class="material-symbols-outlined text-[18px]">search</span>
                                 </span>
-                                <input id="searchInputMobile" class="w-full pl-9 pr-3 py-2.5 text-sm border border-primary/15 rounded-lg bg-white text-primary focus:border-accent focus:ring-1 focus:ring-accent/30 placeholder:text-gray-400" placeholder="Digite o nome do Vereador ou Deputado..." type="text"/>
+                                <input id="searchInputMobile" list="parlamentares-list" class="w-full pl-9 pr-3 py-2.5 text-sm border border-primary/15 rounded-lg bg-white text-primary focus:border-accent focus:ring-1 focus:ring-accent/30 placeholder:text-gray-400" placeholder="Digite o nome do Vereador ou Deputado..." type="text"/>
                             </div>
                             <button type="submit" class="bg-accent text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-accent/80 transition-colors active:scale-[0.98]">
                                 Buscar
@@ -364,7 +364,7 @@
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
                             <span class="material-symbols-outlined text-[18px]">search</span>
                         </span>
-                        <input id="searchInputSheet" class="w-full pl-10 pr-3 py-2.5 text-sm border border-primary/15 rounded-lg bg-white text-primary focus:border-accent focus:ring-1 focus:ring-accent/30 placeholder:text-gray-400" placeholder="Digite o nome do Vereador ou Deputado..." type="text"/>
+                        <input id="searchInputSheet" list="parlamentares-list" class="w-full pl-10 pr-3 py-2.5 text-sm border border-primary/15 rounded-lg bg-white text-primary focus:border-accent focus:ring-1 focus:ring-accent/30 placeholder:text-gray-400" placeholder="Digite o nome do Vereador ou Deputado..." type="text"/>
                     </div>
                     <button type="submit" class="bg-accent text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-accent/80 transition-colors active:scale-[0.98]">
                         Buscar
@@ -433,6 +433,8 @@
         </div>
     </div>
 </footer>
+
+<datalist id="parlamentares-list"></datalist>
 
 <!-- Application Script (Backend Fetch) -->
 <script>
@@ -613,6 +615,35 @@
             // Silenciosamente mantém o ícone padrão
         }
     }
+
+    // Autocomplete handler
+    let debounceTimer;
+    const datalist = document.getElementById('parlamentares-list');
+    
+    async function handleSearchInput(e) {
+        const query = e.target.value.trim();
+        if (query.length < 2) return;
+        
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(async () => {
+            try {
+                const resp = await fetch(`${API_BASE}/api/search_nomes?q=${encodeURIComponent(query)}`);
+                if (!resp.ok) return;
+                const names = await resp.json();
+                
+                datalist.innerHTML = '';
+                names.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    datalist.appendChild(option);
+                });
+            } catch (err) {}
+        }, 300);
+    }
+
+    searchInput.addEventListener('input', handleSearchInput);
+    searchInputMobile.addEventListener('input', handleSearchInput);
+    searchInputSheet.addEventListener('input', handleSearchInput);
 
     // Sync sheet year selector
     anoSelectorSheet.addEventListener('change', () => {
