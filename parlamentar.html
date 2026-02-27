@@ -19,11 +19,9 @@
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#0F172A",
-                        "background-light": "#F8F9FA",
-                        "background-dark": "#101c22",
-                        "surface": "#FFFFFF",
-                        "accent": "#0EA5E9",
+                        "primary": "#1354ec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
                         "text-main": "#334155",
                         "muted": "#94A3B8",
                         "success": "#10B981",
@@ -34,109 +32,71 @@
                         "body": ["IBM Plex Sans", "sans-serif"],
                         "mono": ["IBM Plex Mono", "monospace"],
                     },
-                    borderRadius: {
-                        "DEFAULT": "2px",
-                        "sm": "2px",
-                        "md": "4px",
-                        "lg": "8px",
-                        "full": "9999px",
-                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
                 },
             },
         }
     </script>
     <style>
-        body {
-            font-family: 'IBM Plex Sans', sans-serif;
-            background-color: #F8F9FA;
-            color: #334155;
-        }
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Space Grotesk', sans-serif;
-        }
-        .mono {
-            font-family: 'IBM Plex Mono', monospace;
-        }
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1; 
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
+        body { font-family: 'IBM Plex Sans', sans-serif; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Space Grotesk', sans-serif; }
+        .mono, .financial-value { font-family: 'IBM Plex Mono', monospace; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         /* Bottom Sheet animations */
-        #mobileSheet .sheet-overlay {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        #mobileSheet.open .sheet-overlay {
-            opacity: 1;
-        }
-        #mobileSheet.open #sheetPanel {
-            transform: translateY(0);
-        }
-        /* FAB pulse when no data loaded */
+        #mobileSheet .sheet-overlay { opacity: 0; transition: opacity 0.3s ease; }
+        #mobileSheet.open .sheet-overlay { opacity: 1; }
+        #mobileSheet.open #sheetPanel { transform: translateY(0); }
+        /* FAB pulse */
         @keyframes fab-pulse {
-            0%, 100% { box-shadow: 0 4px 14px rgba(14,165,233,0.4); }
-            50% { box-shadow: 0 4px 20px rgba(14,165,233,0.7); }
+            0%, 100% { box-shadow: 0 4px 14px rgba(19,84,236,0.4); }
+            50% { box-shadow: 0 4px 20px rgba(19,84,236,0.7); }
         }
         #mobileFab { animation: fab-pulse 2s ease-in-out infinite; }
     </style>
 </head>
-<body class="bg-background-light min-h-screen flex flex-col">
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
 
-<!-- TopNavBar -->
-<div class="relative flex w-full flex-col bg-gradient-to-r from-primary to-[#1e3a5f] shadow-md">
-    <div class="layout-container flex w-full justify-center">
-        <div class="layout-content-container flex flex-col w-full max-w-[1400px]">
-            <!-- Logo row -->
-            <header class="flex items-center justify-between whitespace-nowrap px-6 py-3 gap-4">
-                <div class="flex items-center gap-4 text-white">
-                    <div class="size-8 flex items-center justify-center bg-white/10 rounded-lg p-1.5 backdrop-blur-sm border border-white/20">
-                        <span class="material-symbols-outlined text-[32px] text-accent">policy</span>
-                    </div>
-                    <div class="flex flex-col">
-                        <h2 class="text-white text-2xl md:text-3xl font-bold leading-tight tracking-tight font-display text-shadow-sm">Lupa Cidadã</h2>
-                        <span class="text-xs md:text-sm text-white/80 font-medium tracking-wide mt-0.5">O orçamento é público, a fiscalização é sua.</span>
-                    </div>
+<!-- Header -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 lg:px-20 py-3 sticky top-0 z-50">
+    <div class="flex items-center gap-8">
+        <a href="/" class="flex items-center gap-3 text-primary">
+            <span class="material-symbols-outlined text-3xl">search_insights</span>
+            <h2 class="text-slate-900 dark:text-slate-100 text-xl font-bold leading-tight tracking-tight font-display">Lupa Cidadã</h2>
+        </a>
+        <nav class="hidden md:flex items-center gap-8">
+            <a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium" href="/">Início</a>
+            <a class="text-primary border-b-2 border-primary transition-colors text-sm font-medium py-3" href="/parlamentar">Parlamentares</a>
+            <a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium" href="/municipios">Municípios</a>
+            <a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium" href="#">Sobre</a>
+        </nav>
+    </div>
+    <div class="flex flex-1 justify-end gap-4 items-center">
+        <!-- Mobile: button to open bottom sheet -->
+        <button id="mobileMenuBtn" class="md:hidden flex items-center gap-2 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-lg text-slate-600 text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" onclick="openSheet()">
+            <span class="material-symbols-outlined text-[20px]">tune</span>
+            <span>Busca</span>
+        </button>
+        <label class="hidden sm:flex flex-col min-w-40 h-10 max-w-64">
+            <form id="searchForm" class="flex w-full flex-1 items-stretch rounded-lg h-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                <div class="text-slate-400 flex items-center justify-center pl-4">
+                    <span class="material-symbols-outlined text-xl">search</span>
                 </div>
-
-                <!-- Mobile: botão para abrir bottom sheet -->
-                <button id="mobileMenuBtn" class="md:hidden flex items-center gap-2 bg-white/10 border border-white/20 px-3 py-2 rounded text-white text-sm hover:bg-white/20 transition-colors" onclick="openSheet()">
-                    <span class="material-symbols-outlined text-[20px]">tune</span>
-                    <span>Dados & Busca</span>
-                </button>
-            </header>
-        </div>
+                <input id="searchInput" list="parlamentares-list" class="form-input flex w-full min-w-0 flex-1 border-none bg-transparent focus:ring-0 h-full placeholder:text-slate-400 px-4 pl-2 text-sm font-normal" placeholder="Buscar parlamentar..." type="text"/>
+                <!-- Hidden year selector (kept for JS compatibility) -->
+                <div id="anoSelectorContainer" class="hidden items-center gap-1">
+                    <select id="anoSelector" class="text-sm border-none bg-transparent rounded px-1 py-1 text-primary focus:ring-0 cursor-pointer"></select>
+                </div>
+                <div id="anoDivider" style="display:none"></div>
+            </form>
+        </label>
+        <button class="flex items-center justify-center rounded-lg h-10 px-5 bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-all">
+            <span class="truncate">Entrar</span>
+        </button>
     </div>
-</div>
-
-<!-- Search bar (gov.br style) -->
-<div class="hidden md:block w-full bg-white border-b border-gray-200 shadow-sm">
-    <div class="w-full max-w-[1400px] mx-auto px-6 py-5">
-        <!-- Hidden year selector (kept for JS compatibility) -->
-        <div id="anoSelectorContainer" class="hidden items-center gap-1 mb-2">
-            <span class="material-symbols-outlined text-[18px] text-muted">calendar_today</span>
-            <select id="anoSelector" class="text-sm border border-gray-300 rounded px-2 py-1.5 bg-white text-primary focus:border-accent focus:ring-0 cursor-pointer"></select>
-        </div>
-        <div class="h-6 w-px bg-white/30" id="anoDivider" style="display:none"></div>
-        <form id="searchForm" class="flex items-center w-full max-w-[960px] mx-auto">
-            <div class="relative flex-grow">
-                <input id="searchInput" list="parlamentares-list" class="w-full pl-5 pr-14 py-4 text-lg border border-gray-300 rounded-l-lg bg-white text-primary focus:border-accent focus:ring-2 focus:ring-accent/20 focus:outline-none placeholder:text-gray-400" placeholder="O que você procura? Ex: Rodrigo Goulart, Tabata Amaral..." type="text"/>
-            </div>
-            <button type="submit" class="bg-accent hover:bg-accent/85 text-white px-6 py-4 rounded-r-lg transition-colors flex items-center gap-2 border border-accent">
-                <span class="material-symbols-outlined text-[22px]">search</span>
-                <span class="font-semibold text-base">Buscar</span>
-            </button>
-        </form>
-    </div>
-</div>
+</header>
 
 <!-- Main Content -->
 <main class="flex-grow w-full flex justify-center py-8 px-4 sm:px-6">
@@ -149,17 +109,17 @@
         </div>
 
         <!-- Empty State (Shown initially) -->
-        <div id="emptyState" class="flex flex-col items-center justify-center py-12 md:py-20 bg-gradient-to-br from-white via-white to-accent/5 border border-primary/10 rounded-lg text-center px-4 shadow-sm">
-            <div class="w-20 h-20 rounded-full bg-accent/10 flex items-center justify-center mb-4">
-                <span class="material-symbols-outlined text-5xl text-accent/50">person_search</span>
+        <div id="emptyState" class="flex flex-col items-center justify-center py-12 md:py-20 bg-gradient-to-br from-white via-white to-primary/5 border border-primary/10 rounded-lg text-center px-4 shadow-sm">
+            <div class="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <span class="material-symbols-outlined text-5xl text-primary/50">person_search</span>
             </div>
             <h2 class="text-2xl font-bold text-primary mb-2">Nenhum parlamentar selecionado</h2>
             <p class="text-muted max-w-md hidden md:block">Busque pelo nome do parlamentar para visualizar o perfil completo com emendas, municípios beneficiados e indicadores de execução.</p>
 
             <!-- Mobile: guia interativo com passos -->
             <div class="md:hidden w-full max-w-sm mt-6 space-y-4">
-                <div class="flex items-start gap-3 text-left bg-accent/5 border border-accent/20 rounded-lg p-4">
-                    <span class="flex-shrink-0 w-7 h-7 rounded-full bg-accent text-white text-sm font-bold flex items-center justify-center">1</span>
+                <div class="flex items-start gap-3 text-left bg-primary/5 border border-primary/20 rounded-lg p-4">
+                    <span class="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-white text-sm font-bold flex items-center justify-center">1</span>
                     <div class="flex-grow">
                         <p class="text-sm font-medium text-primary mb-2">Busque o parlamentar</p>
                         <form id="searchFormMobile" class="flex items-center gap-2">
@@ -167,9 +127,9 @@
                                 <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted">
                                     <span class="material-symbols-outlined text-[18px]">search</span>
                                 </span>
-                                <input id="searchInputMobile" list="parlamentares-list" class="w-full pl-9 pr-3 py-2.5 text-sm border border-primary/15 rounded-lg bg-white text-primary focus:border-accent focus:ring-1 focus:ring-accent/30 placeholder:text-gray-400" placeholder="Digite o nome do Vereador ou Deputado..." type="text"/>
+                                <input id="searchInputMobile" list="parlamentares-list" class="w-full pl-9 pr-3 py-2.5 text-sm border border-primary/15 rounded-lg bg-white text-primary focus:border-primary focus:ring-1 focus:ring-primary/30 placeholder:text-gray-400" placeholder="Digite o nome do Vereador ou Deputado..." type="text"/>
                             </div>
-                            <button type="submit" class="bg-accent text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-accent/80 transition-colors active:scale-[0.98]">
+                            <button type="submit" class="bg-primary text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-primary/80 transition-colors active:scale-[0.98]">
                                 Buscar
                             </button>
                         </form>
@@ -188,11 +148,11 @@
             </nav>
 
             <!-- Profile Header -->
-            <section class="bg-gradient-to-br from-white via-white to-accent/5 border border-primary/10 rounded-lg p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start md:items-center relative overflow-hidden shadow-sm">
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent via-primary to-accent"></div>
+            <section class="bg-gradient-to-br from-white via-white to-primary/5 border border-primary/10 rounded-lg p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start md:items-center relative overflow-hidden shadow-sm">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-primary to-primary"></div>
                 <div class="absolute top-0 right-0 w-64 h-full opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/graphy.png')]"></div>
                 <div class="relative">
-                    <div id="avatarContainer" class="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-3 border-accent/30 bg-gradient-to-br from-accent/10 to-primary/10 flex-shrink-0 flex items-center justify-center shadow-lg">
+                    <div id="avatarContainer" class="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-3 border-primary/30 bg-gradient-to-br from-primary/10 to-primary/10 flex-shrink-0 flex items-center justify-center shadow-lg">
                         <span id="avatarIcon" class="material-symbols-outlined text-5xl text-gray-400">person</span>
                         <img id="avatarImg" class="hidden w-full h-full object-cover" alt="Foto do Parlamentar" />
                     </div>
@@ -208,9 +168,9 @@
                     <h1 id="parlamentarNome" class="text-3xl md:text-5xl font-bold text-primary tracking-tight">Nome do Parlamentar</h1>
                     <div class="flex items-center gap-3 text-lg text-text-main font-medium">
                         <span class="flex items-center gap-1">
-                            <span class="material-symbols-outlined text-accent text-xl">flag</span>
+                            <span class="material-symbols-outlined text-primary text-xl">flag</span>
                             <span id="parlamentarPartido">Partido</span>
-                            <span class="ml-2 text-xs font-semibold uppercase tracking-wider bg-accent/10 text-accent border border-accent/20 px-2 py-0.5 rounded-sm" id="parlamentarTipo"></span>
+                            <span class="ml-2 text-xs font-semibold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-sm" id="parlamentarTipo"></span>
                         </span>
                     </div>
                 </div>
@@ -220,10 +180,10 @@
             <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- Card 1 -->
                 <div class="p-6 flex flex-col justify-between group bg-white border border-primary/10 rounded-lg hover:shadow-md transition-all relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-accent"></div>
+                    <div class="absolute top-0 left-0 w-full h-1 bg-primary"></div>
                     <div class="flex justify-between items-start mb-4">
                         <h3 class="text-sm font-bold text-muted uppercase tracking-wider">Total Indicado</h3>
-                        <span class="material-symbols-outlined text-accent/60 group-hover:text-accent transition-colors">account_balance_wallet</span>
+                        <span class="material-symbols-outlined text-primary/60 group-hover:text-primary transition-colors">account_balance_wallet</span>
                     </div>
                     <div class="flex flex-col">
                         <span id="valorTotalIndicado" class="text-3xl md:text-4xl font-mono font-medium text-primary tracking-tight">R$ 0,00</span>
@@ -268,7 +228,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Informações Adicionais -->
                 <section class="lg:col-span-1 bg-white border border-primary/10 rounded-lg p-6 flex flex-col h-full relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-1 h-full bg-accent"></div>
+                    <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
                     <h3 class="text-lg font-bold text-primary mb-6 pl-3">Top Municípios Beneficiados</h3>
                     
                     <div id="listaMunicipios" class="mt-4 space-y-3 flex-grow overflow-y-auto max-h-[400px] pr-2">
@@ -287,7 +247,7 @@
                     <div class="overflow-x-auto flex-grow max-h-[500px] overflow-y-auto">
                         <table class="w-full text-left border-collapse relative min-w-[800px]">
                             <thead class="sticky top-0 z-10 bg-white">
-                                <tr class="bg-gradient-to-r from-primary/5 to-accent/5 border-b border-primary/10">
+                                <tr class="bg-gradient-to-r from-primary/5 to-primary/5 border-b border-primary/10">
                                     <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display bg-white">Data / Código</th>
                                     <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display bg-white">Natureza</th>
                                     <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display bg-white">Município / Local</th>
@@ -352,7 +312,7 @@
             <!-- Year Selector -->
             <div id="anoSelectorSheetContainer" class="hidden space-y-2">
                 <p class="text-xs font-bold uppercase tracking-wider text-muted">Ano</p>
-                <select id="anoSelectorSheet" class="w-full text-sm border border-primary/15 rounded-lg px-3 py-2.5 bg-white text-primary focus:border-accent focus:ring-1 focus:ring-accent/30 cursor-pointer">
+                <select id="anoSelectorSheet" class="w-full text-sm border border-primary/15 rounded-lg px-3 py-2.5 bg-white text-primary focus:border-primary focus:ring-1 focus:ring-primary/30 cursor-pointer">
                 </select>
             </div>
 
@@ -364,9 +324,9 @@
                         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
                             <span class="material-symbols-outlined text-[18px]">search</span>
                         </span>
-                        <input id="searchInputSheet" list="parlamentares-list" class="w-full pl-10 pr-3 py-2.5 text-sm border border-primary/15 rounded-lg bg-white text-primary focus:border-accent focus:ring-1 focus:ring-accent/30 placeholder:text-gray-400" placeholder="Digite o nome do Vereador ou Deputado..." type="text"/>
+                        <input id="searchInputSheet" list="parlamentares-list" class="w-full pl-10 pr-3 py-2.5 text-sm border border-primary/15 rounded-lg bg-white text-primary focus:border-primary focus:ring-1 focus:ring-primary/30 placeholder:text-gray-400" placeholder="Digite o nome do Vereador ou Deputado..." type="text"/>
                     </div>
-                    <button type="submit" class="bg-accent text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-accent/80 transition-colors active:scale-[0.98]">
+                    <button type="submit" class="bg-primary text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-primary/80 transition-colors active:scale-[0.98]">
                         Buscar
                     </button>
                 </form>
@@ -376,60 +336,62 @@
 </div>
 
 <!-- Mobile FAB (visível quando dashboard está ativo) -->
-<button id="mobileFab" class="hidden fixed bottom-6 right-6 z-40 md:hidden w-14 h-14 bg-accent text-white rounded-full shadow-lg hover:bg-accent/90 active:scale-95 transition-all flex items-center justify-center" onclick="openSheet()">
+<button id="mobileFab" class="hidden fixed bottom-6 right-6 z-40 md:hidden w-14 h-14 bg-primary text-white rounded-full shadow-lg hover:bg-primary/90 active:scale-95 transition-all flex items-center justify-center" onclick="openSheet()">
     <span class="material-symbols-outlined text-[24px]">manage_search</span>
 </button>
 
-<footer class="mt-12 bg-gradient-to-r from-primary to-[#1e3a5f] py-12">
-    <div class="max-w-[1200px] mx-auto px-6">
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8 lg:gap-12 mb-12">
-            <!-- Brand Column -->
-            <div class="md:col-span-5 flex flex-col gap-4">
-                <div class="flex items-center gap-2 text-white">
-                    <span class="material-symbols-outlined text-[28px] font-medium text-accent">ssid_chart</span>
-                    <h2 class="text-xl font-bold font-display tracking-tight">Lupa Cidadã</h2>
+<footer class="bg-white dark:bg-background-dark border-t border-slate-200 dark:border-slate-800 px-6 py-12 lg:px-20">
+    <div class="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+        <div class="col-span-1 md:col-span-1 flex flex-col gap-4">
+            <a href="/" class="flex items-center gap-3">
+                <div class="text-primary">
+                    <span class="material-symbols-outlined text-3xl">search_insights</span>
                 </div>
-                <p class="text-sm text-white/70 leading-relaxed max-w-sm">
-                    Plataforma independente de transparência pública. Nosso objetivo é democratizar o acesso aos dados orçamentários do Brasil através de visualizações claras e auditoria cidadã.
-                </p>
-            </div>
-
-            <!-- Platform Links -->
-            <div class="md:col-span-4 lg:col-span-3">
-                <h4 class="text-xs font-bold text-white/50 uppercase tracking-wider mb-6">Plataforma</h4>
-                <ul class="space-y-4">
-                    <li><a href="#" class="text-sm font-semibold text-white/90 hover:text-accent transition-colors">Como funciona</a></li>
-                    <li><a href="#" class="text-sm font-semibold text-white/90 hover:text-accent transition-colors">Dados Abertos</a></li>
-                    <li><a href="#" class="text-sm font-semibold text-white/90 hover:text-accent transition-colors">Ranking de Transparência</a></li>
-                    <li><a href="#" class="text-sm font-semibold text-white/90 hover:text-accent transition-colors">Metodologia</a></li>
-                </ul>
-            </div>
-
-            <!-- Institutional Links -->
-            <div class="md:col-span-3 lg:col-span-4">
-                <h4 class="text-xs font-bold text-white/50 uppercase tracking-wider mb-6">Institucional</h4>
-                <ul class="space-y-4">
-                    <li><a href="#" class="text-sm font-semibold text-white/90 hover:text-accent transition-colors">Sobre Nós</a></li>
-                    <li><a href="#" class="text-sm font-semibold text-white/90 hover:text-accent transition-colors">Privacidade</a></li>
-                    <li><a href="#" class="text-sm font-semibold text-white/90 hover:text-accent transition-colors">API para Desenvolvedores</a></li>
-                    <li><a href="#" class="text-sm font-semibold text-white/90 hover:text-accent transition-colors">Contato</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Copyright & Socials -->
-        <div class="pt-8 border-t border-white/20 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p class="text-xs font-medium text-white/50">
-                © 2026 Lupa Cidadã. Todos os direitos reservados. Dados oriundos do Portal da Transparência e Câmara dos Deputados.
+                <h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold font-display">Lupa Cidadã</h2>
+            </a>
+            <p class="text-slate-500 text-sm leading-relaxed">
+                Plataforma independente de monitoramento de gastos públicos e emendas parlamentares no Brasil.
             </p>
-            <div class="flex items-center gap-4">
-                <a href="#" class="text-white/50 hover:text-accent transition-colors" aria-label="Twitter">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path></svg>
-                </a>
-                <a href="#" class="text-white/50 hover:text-accent transition-colors" aria-label="Instagram">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd"></path></svg>
-                </a>
-            </div>
+        </div>
+        <div>
+            <h4 class="font-bold text-slate-900 dark:text-slate-100 mb-6 font-display">Navegação</h4>
+            <ul class="flex flex-col gap-3 text-sm text-slate-500">
+                <li><a class="hover:text-primary transition-colors" href="#">Portal da Transparência</a></li>
+                <li><a class="hover:text-primary transition-colors" href="#">Câmara dos Deputados</a></li>
+                <li><a class="hover:text-primary transition-colors" href="#">Senado Federal</a></li>
+                <li><a class="hover:text-primary transition-colors" href="#">Dados Abertos</a></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold text-slate-900 dark:text-slate-100 mb-6 font-display">Recursos</h4>
+            <ul class="flex flex-col gap-3 text-sm text-slate-500">
+                <li><a class="hover:text-primary transition-colors" href="#">Documentação da API</a></li>
+                <li><a class="hover:text-primary transition-colors" href="#">Metodologia</a></li>
+                <li><a class="hover:text-primary transition-colors" href="#">Glossário Legislativo</a></li>
+                <li><a class="hover:text-primary transition-colors" href="#">Reportar Erro</a></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold text-slate-900 dark:text-slate-100 mb-6 font-display">Contato</h4>
+            <ul class="flex flex-col gap-3 text-sm text-slate-500">
+                <li>contato@lupacidada.org.br</li>
+                <li>Brasília, DF</li>
+                <li class="flex gap-4 mt-2">
+                    <a class="text-slate-400 hover:text-primary transition-colors" href="#">
+                        <span class="material-symbols-outlined">share</span>
+                    </a>
+                    <a class="text-slate-400 hover:text-primary transition-colors" href="#">
+                        <span class="material-symbols-outlined">mail</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="max-w-[1200px] mx-auto mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400">
+        <p>© 2024 Lupa Cidadã - Dados de livre consulta. Todos os direitos reservados.</p>
+        <div class="flex gap-6">
+            <a class="hover:underline" href="#">Privacidade</a>
+            <a class="hover:underline" href="#">Termos de Uso</a>
         </div>
     </div>
 </footer>
