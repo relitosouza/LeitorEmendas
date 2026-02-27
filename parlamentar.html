@@ -823,6 +823,14 @@
         dashboardContent.classList.remove('hidden');
         dashboardContent.classList.add('flex');
     }
+
+    // Read query param from URL (e.g. from home page redirect)
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialQuery = urlParams.get('q');
+    if (initialQuery) {
+        searchInput.value = initialQuery;
+        doSearch(initialQuery);
+    }
 </script>
 </body>
 </html>
