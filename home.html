@@ -79,7 +79,8 @@
                         <div class="text-slate-400 flex items-center justify-center pl-6">
                             <span class="material-symbols-outlined">search</span>
                         </div>
-                        <input id="searchInput" class="flex-1 bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 px-4 text-base placeholder:text-slate-400" placeholder="Buscar por Cidade, Deputado ou Senador..." />
+                        <input id="searchInput" list="search-suggestions" class="flex-1 bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 px-4 text-base placeholder:text-slate-400" placeholder="Buscar por Cidade, Deputado ou Senador..." />
+                        <datalist id="search-suggestions"></datalist>
                         <div class="flex items-center pr-2">
                             <button type="submit" class="h-12 px-8 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-all">
                                 Pesquisar
@@ -334,13 +335,69 @@
 </div>
 
 <script>
-    // Search form handling
+    const API_BASE = window.location.origin;
+    const searchInput = document.getElementById('searchInput');
+    const datalist = document.getElementById('search-suggestions');
+    let debounceTimer;
+    // Track matched names to know if query is a municipio or parlamentar
+    let matchedMunicipios = [];
+    let matchedParlamentares = [];
+
+    // Autocomplete: fetch suggestions from both APIs
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        if (query.length < 2) { datalist.innerHTML = ''; return; }
+
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(async () => {
+            try {
+                const [mResp, pResp] = await Promise.all([
+                    fetch(`${API_BASE}/api/search_municipios?q=${encodeURIComponent(query)}`),
+                    fetch(`${API_BASE}/api/search_nomes?q=${encodeURIComponent(query)}`)
+                ]);
+                matchedMunicipios = mResp.ok ? await mResp.json() : [];
+                matchedParlamentares = pResp.ok ? await pResp.json() : [];
+
+                datalist.innerHTML = '';
+                matchedMunicipios.forEach(name => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.label = name + ' (Município)';
+                    datalist.appendChild(opt);
+                });
+                matchedParlamentares.forEach(name => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.label = name + ' (Parlamentar)';
+                    datalist.appendChild(opt);
+                });
+            } catch (err) {}
+        }, 300);
+    });
+
+    // Submit: detect if it's a municipio or parlamentar and redirect accordingly
+    function doSearch(query) {
+        if (!query) return;
+        const isMunicipio = matchedMunicipios.some(m => m.toLowerCase() === query.toLowerCase());
+        const isParlamentar = matchedParlamentares.some(p => p.toLowerCase() === query.toLowerCase());
+
+        if (isParlamentar && !isMunicipio) {
+            window.location.href = '/parlamentar?q=' + encodeURIComponent(query);
+        } else {
+            // Default to municipios page
+            window.location.href = '/municipios?q=' + encodeURIComponent(query);
+        }
+    }
+
     document.getElementById('searchForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const query = document.getElementById('searchInput').value.trim();
-        if (!query) return;
-        // Try municipality first, then redirect to municipios page with the search
-        window.location.href = '/municipios?q=' + encodeURIComponent(query);
+        doSearch(searchInput.value.trim());
+    });
+
+    // Also trigger on datalist selection
+    searchInput.addEventListener('change', function() {
+        const query = this.value.trim();
+        if (query) doSearch(query);
     });
 
     // Example search links
@@ -348,8 +405,8 @@
         link.addEventListener('click', function(e) {
             e.preventDefault();
             var query = this.getAttribute('data-query');
-            document.getElementById('searchInput').value = query;
-            document.getElementById('searchForm').dispatchEvent(new Event('submit'));
+            searchInput.value = query;
+            doSearch(query);
         });
     });
 </script>

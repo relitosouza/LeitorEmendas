@@ -73,7 +73,7 @@
 <div class="flex items-center gap-4 flex-1 max-w-xl">
 <div class="relative w-full">
 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-xl">location_on</span>
-<input id="searchInput" class="w-full bg-ghost-white border-slate-border rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-1 focus:ring-primary focus:border-primary transition-all outline-none text-text-main placeholder:text-slate-400" placeholder="Selecione um município..." type="text" value="Osasco" list="municipios-list"/>
+<input id="searchInput" class="w-full bg-ghost-white border-slate-border rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-1 focus:ring-primary focus:border-primary transition-all outline-none text-text-main placeholder:text-slate-400" placeholder="Selecione um município..." type="text" list="municipios-list"/>
 <datalist id="municipios-list"></datalist>
 <div class="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
 <kbd class="hidden md:inline-flex items-center px-2 py-0.5 rounded bg-white border border-slate-border text-[10px] text-text-muted font-mono">⌘K</kbd>
@@ -106,7 +106,7 @@
 <span class="w-8 h-[2px] bg-primary"></span>
                 Histórico de Emendas
             </div>
-<h2 class="text-5xl font-black tracking-tighter text-text-main">Osasco <span class="text-slate-300">/ SP</span></h2>
+<h2 class="text-5xl font-black tracking-tighter text-text-main" id="cidadeTitulo">Busque um município <span class="text-slate-300">/ SP</span></h2>
 <div class="flex items-center gap-5 pt-1">
 <div class="flex items-center gap-2 text-sm text-text-muted">
 <span class="material-symbols-outlined text-lg text-slate-400">groups</span>
@@ -362,8 +362,13 @@
     const anoSelector = document.getElementById('anoSelector');
     const datalist = document.getElementById('municipios-list');
     let debounceTimer;
-    let currentCity = 'Osasco';
-    
+    // Read city from URL query param (from home page redirect) or default to empty
+    const urlParams = new URLSearchParams(window.location.search);
+    let currentCity = urlParams.get('q') || '';
+    if (currentCity) {
+        searchInput.value = currentCity;
+    }
+
     // Load available years
     async function loadAnos() {
         try {
@@ -420,6 +425,17 @@
         }
     });
 
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            if (query) {
+                currentCity = query;
+                fetchCityData(currentCity, anoSelector.value);
+            }
+        }
+    });
+
     anoSelector.addEventListener('change', () => {
         fetchCityData(currentCity, anoSelector.value);
     });
@@ -447,7 +463,7 @@
     
     function renderCityDashboard(data) {
         // Headers and general info
-        document.querySelector('h2.text-5xl').innerHTML = `${data.cidade} <span class="text-slate-300">/ ${data.uf}</span>`;
+        document.getElementById('cidadeTitulo').innerHTML = `${data.cidade} <span class="text-slate-300">/ ${data.uf}</span>`;
         
         // Indicators
         document.getElementById('valorTotalIndicado').textContent = formatCurrency(data.indicadores.total_indicado);
@@ -541,9 +557,11 @@
         document.getElementById('paginationInfo').textContent = `Mostrando ${data.historico.length} resultados`;
     }
 
-    // Initialize with Osasco data
+    // Initialize with city from URL or do nothing until user searches
     document.addEventListener('DOMContentLoaded', () => {
-        fetchCityData(currentCity);
+        if (currentCity) {
+            fetchCityData(currentCity);
+        }
     });
 
 </script>
