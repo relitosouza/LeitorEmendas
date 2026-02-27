@@ -80,6 +80,15 @@
 </div>
 </div>
 </div>
+<div class="relative w-64 hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-xl">calendar_month</span>
+<select id="anoSelector" class="w-full bg-ghost-white border-slate-border rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-1 focus:ring-primary focus:border-primary transition-all outline-none text-text-main appearance-none cursor-pointer">
+<option value="">Todos os Anos</option>
+</select>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+<span class="material-symbols-outlined text-text-muted text-sm">expand_more</span>
+</div>
+</div>
 <div class="flex items-center gap-3">
 <button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-ghost-white transition-colors text-text-muted">
 <span class="material-symbols-outlined">help_outline</span>
@@ -340,8 +349,30 @@
 
     // --- Search functionality ---
     const searchInput = document.getElementById('searchInput');
+    const anoSelector = document.getElementById('anoSelector');
     const datalist = document.getElementById('municipios-list');
     let debounceTimer;
+    let currentCity = 'Osasco';
+    
+    // Load available years
+    async function loadAnos() {
+        try {
+            const resp = await fetch(`${API_BASE}/api/anos`);
+            const data = await resp.json();
+            if (data.anos && data.anos.length > 0) {
+                anoSelector.innerHTML = '<option value="">Todos os Anos</option>';
+                data.anos.forEach(ano => {
+                    const opt = document.createElement('option');
+                    opt.value = ano;
+                    opt.textContent = ano;
+                    anoSelector.appendChild(opt);
+                });
+            }
+        } catch (e) {
+            console.error("Failed to load years", e);
+        }
+    }
+    loadAnos();
 
     searchInput.addEventListener('input', (e) => {
         const query = e.target.value.trim();
@@ -374,13 +405,19 @@
     searchInput.addEventListener('change', (e) => {
         const query = e.target.value.trim();
         if(query) {
-             fetchCityData(query);
+             currentCity = query;
+             fetchCityData(currentCity, anoSelector.value);
         }
     });
 
-    async function fetchCityData(city) {
+    anoSelector.addEventListener('change', () => {
+        fetchCityData(currentCity, anoSelector.value);
+    });
+
+    async function fetchCityData(city, ano = '') {
         try {
-            const resp = await fetch(`${API_BASE}/api/cidade/${encodeURIComponent(city)}`);
+            const anoParam = ano ? `?ano=${encodeURIComponent(ano)}` : '';
+            const resp = await fetch(`${API_BASE}/api/cidade/${encodeURIComponent(city)}${anoParam}`);
             const data = await resp.json();
             if (resp.ok && data.success) {
                 renderCityDashboard(data);
@@ -466,7 +503,7 @@
 
     // Initialize with Osasco data
     document.addEventListener('DOMContentLoaded', () => {
-        fetchCityData('Osasco');
+        fetchCityData(currentCity);
     });
 
 </script>
