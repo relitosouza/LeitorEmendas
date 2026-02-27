@@ -364,10 +364,8 @@
     let debounceTimer;
     // Read city from URL query param (from home page redirect) or default to empty
     const urlParams = new URLSearchParams(window.location.search);
-    let currentCity = urlParams.get('q') || '';
-    if (currentCity) {
-        searchInput.value = currentCity;
-    }
+    let currentCity = urlParams.get('q') || 'Osasco';
+    searchInput.value = currentCity;
 
     // Load available years
     async function loadAnos() {
