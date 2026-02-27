@@ -66,7 +66,7 @@
 <nav class="hidden xl:flex items-center gap-8">
 <a class="text-[12px] font-bold uppercase tracking-wider text-text-muted hover:text-primary transition-colors" href="#">Início</a>
 <a class="text-[12px] font-bold uppercase tracking-wider text-primary border-b-2 border-primary py-5" href="#">Municípios</a>
-<a class="text-[12px] font-bold uppercase tracking-wider text-text-muted hover:text-primary transition-colors" href="#">Parlamentares</a>
+<a class="text-[12px] font-bold uppercase tracking-wider text-text-muted hover:text-primary transition-colors" href="/parlamentar">Parlamentares</a>
 <a class="text-[12px] font-bold uppercase tracking-wider text-text-muted hover:text-primary transition-colors" href="#">Partidos</a>
 </nav>
 </div>
@@ -357,7 +357,7 @@
                 // This means the main page is now city-focused, but the search should probably be adapted. Let's create a city search if possible, or fall back to parliamentarian search if they click the link.
                 // For this page, we'll implement a mock city search or rely on a new endpoint if it exists.
                 // Assuming we might need to add a new endpoint later, I'll put a placeholder that works like the old one
-                const resp = await fetch(`${API_BASE}/api/search_nomes?q=${encodeURIComponent(query)}`);
+                const resp = await fetch(`${API_BASE}/api/search_municipios?q=${encodeURIComponent(query)}`);
                 if (!resp.ok) return;
                 const names = await resp.json();
                 
@@ -374,13 +374,23 @@
     searchInput.addEventListener('change', (e) => {
         const query = e.target.value.trim();
         if(query) {
-             // In a real app, this would route to the new city or search for the city.
-             // For now, we will just reload the data if we had an endpoint for city.
-             // As we only have parliamentary endpoint, we'll try to fetch data for "Osasco", maybe the backend needs an update.
-             // For the sake of the demo, let's keep it static or use a placeholder fetch.
-             // fetchCityData(query);
+             fetchCityData(query);
         }
     });
+
+    async function fetchCityData(city) {
+        try {
+            const resp = await fetch(`${API_BASE}/api/cidade/${encodeURIComponent(city)}`);
+            const data = await resp.json();
+            if (resp.ok && data.success) {
+                renderCityDashboard(data);
+            } else {
+                alert(data.error || "Cidade não encontrada.");
+            }
+        } catch (e) {
+            alert("Erro ao buscar dados da cidade.");
+        }
+    }
 
 
     // --- Load Data for Osasco ---
@@ -454,73 +464,9 @@
         document.getElementById('paginationInfo').textContent = `Mostrando ${data.historico.length} resultados`;
     }
 
-    // Mock data for Osasco based on the new layout requirements
-    const mockOsascoData = {
-        cidade: "Osasco",
-        uf: "SP",
-        indicadores: {
-            total_indicado: 25450000.00,
-            count: 42,
-            execucao_pago: 75.4
-        },
-        maior_benfeitor: {
-            nome: "Gerson Pessoa",
-            valor: 8500000.00
-        },
-        setor_prioritario: {
-            nome: "Saúde Pública",
-            percentual: 52.3
-        },
-        partidos: ["PODE", "PT", "PSDB"],
-        historico: [
-            {
-                ano: 2024,
-                parlamentar: "Gerson Pessoa",
-                partido: "PODE",
-                objeto: "Custeio Atenção Primária à Saúde",
-                status: "PAGO",
-                is_pago: true,
-                natureza_icon: "medical_services",
-                valor_raw: 2000000.00
-            },
-            {
-                ano: 2023,
-                parlamentar: "Emidio de Souza",
-                partido: "PT",
-                objeto: "Reforma Hospital Municipal",
-                status: "EMPENHADO",
-                is_pago: false,
-                natureza_icon: "engineering",
-                valor_raw: 1500000.00
-            },
-            {
-                ano: 2023,
-                parlamentar: "Bruna Furlan",
-                partido: "PSDB",
-                objeto: "Equipamentos Educação Infantil",
-                status: "PAGO",
-                is_pago: true,
-                natureza_icon: "school",
-                valor_raw: 850000.00
-            },
-             {
-                ano: 2022,
-                parlamentar: "Renata Abreu",
-                partido: "PODE",
-                objeto: "Infraestrutura Urbana - Asfalto",
-                status: "PAGO",
-                is_pago: true,
-                natureza_icon: "add_road",
-                valor_raw: 3200000.00
-            }
-        ]
-    };
-
     // Initialize with Osasco data
     document.addEventListener('DOMContentLoaded', () => {
-        // Here we would normally fetch from API: fetchCityData('Osasco');
-        // Since we don't have the backend endpoint yet, we use mock data to satisfy layout requirement.
-        renderCityDashboard(mockOsascoData);
+        fetchCityData('Osasco');
     });
 
 </script>

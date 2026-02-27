@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Perfil do Parlamentar - Lupa Cidadã</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0F172A",
+                        "background-light": "#F8F9FA",
+                        "background-dark": "#101c22",
+                        "surface": "#FFFFFF",
+                        "accent": "#0EA5E9",
+                        "text-main": "#334155",
+                        "muted": "#94A3B8",
+                        "success": "#10B981",
+                        "warning": "#F59E0B",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["IBM Plex Sans", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"],
+                    },
+                    borderRadius: {
+                        "DEFAULT": "2px",
+                        "sm": "2px",
+                        "md": "4px",
+                        "lg": "8px",
+                        "full": "9999px",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: #F8F9FA;
+            color: #334155;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Bottom Sheet animations */
+        #mobileSheet .sheet-overlay {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #mobileSheet.open .sheet-overlay {
+            opacity: 1;
+        }
+        #mobileSheet.open #sheetPanel {
+            transform: translateY(0);
+        }
+        /* FAB pulse when no data loaded */
+        @keyframes fab-pulse {
+            0%, 100% { box-shadow: 0 4px 14px rgba(14,165,233,0.4); }
+            50% { box-shadow: 0 4px 20px rgba(14,165,233,0.7); }
+        }
+        #mobileFab { animation: fab-pulse 2s ease-in-out infinite; }
+    </style>
+</head>
+<body class="bg-background-light min-h-screen flex flex-col">
+
+<!-- TopNavBar -->
+<div class="relative flex w-full flex-col bg-gradient-to-r from-primary to-[#1e3a5f] shadow-md">
+    <div class="layout-container flex w-full justify-center">
+        <div class="layout-content-container flex flex-col w-full max-w-[1400px]">
+            <!-- Logo row -->
+            <header class="flex items-center justify-between whitespace-nowrap px-6 py-3 gap-4">
+                <div class="flex items-center gap-4 text-white">
+                    <div class="size-8 flex items-center justify-center bg-white/10 rounded-lg p-1.5 backdrop-blur-sm border border-white/20">
+                        <span class="material-symbols-outlined text-[32px] text-accent">policy</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <h2 class="text-white text-2xl md:text-3xl font-bold leading-tight tracking-tight font-display text-shadow-sm">Lupa Cidadã</h2>
+                        <span class="text-xs md:text-sm text-white/80 font-medium tracking-wide mt-0.5">O orçamento é público, a fiscalização é sua.</span>
+                    </div>
+                </div>
+
+                <!-- Mobile: botão para abrir bottom sheet -->
+                <button id="mobileMenuBtn" class="md:hidden flex items-center gap-2 bg-white/10 border border-white/20 px-3 py-2 rounded text-white text-sm hover:bg-white/20 transition-colors" onclick="openSheet()">
+                    <span class="material-symbols-outlined text-[20px]">tune</span>
+                    <span>Dados & Busca</span>
+                </button>
+            </header>
+        </div>
+    </div>
+</div>
+
+<!-- Search bar (gov.br style) -->
+<div class="hidden md:block w-full bg-white border-b border-gray-200 shadow-sm">
+    <div class="w-full max-w-[1400px] mx-auto px-6 py-5">
+        <!-- Hidden year selector (kept for JS compatibility) -->
+        <div id="anoSelectorContainer" class="hidden items-center gap-1 mb-2">
+            <span class="material-symbols-outlined text-[18px] text-muted">calendar_today</span>
+            <select id="anoSelector" class="text-sm border border-gray-300 rounded px-2 py-1.5 bg-white text-primary focus:border-accent focus:ring-0 cursor-pointer"></select>
+        </div>
+        <div class="h-6 w-px bg-white/30" id="anoDivider" style="display:none"></div>
+        <form id="searchForm" class="flex items-center w-full max-w-[960px] mx-auto">
+            <div class="relative flex-grow">
+                <input id="searchInput" list="parlamentares-list" class="w-full pl-5 pr-14 py-4 text-lg border border-gray-300 rounded-l-lg bg-white text-primary focus:border-accent focus:ring-2 focus:ring-accent/20 focus:outline-none placeholder:text-gray-400" placeholder="O que você procura? Ex: Rodrigo Goulart, Tabata Amaral..." type="text"/>
+            </div>
+            <button type="submit" class="bg-accent hover:bg-accent/85 text-white px-6 py-4 rounded-r-lg transition-colors flex items-center gap-2 border border-accent">
+                <span class="material-symbols-outlined text-[22px]">search</span>
+                <span class="font-semibold text-base">Buscar</span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Main Content -->
+<main class="flex-grow w-full flex justify-center py-8 px-4 sm:px-6">
+    <div class="w-full max-w-[1200px] flex flex-col gap-8">
+        
+        <!-- Loading State Overlay (Initially Hidden) -->
+        <div id="loadingOverlay" class="hidden fixed inset-0 bg-white/80 z-50 flex flex-col items-center justify-center backdrop-blur-sm">
+            <span class="material-symbols-outlined animate-spin text-4xl text-primary mb-4">progress_activity</span>
+            <p class="text-lg font-medium text-primary">Processando dados...</p>
+        </div>
+
+        <!-- Empty State (Shown initially) -->
+        <div id="emptyState" class="flex flex-col items-center justify-center py-12 md:py-20 bg-gradient-to-br from-white via-white to-accent/5 border border-primary/10 rounded-lg text-center px-4 shadow-sm">
+            <div class="w-20 h-20 rounded-full bg-accent/10 flex items-center justify-center mb-4">
+                <span class="material-symbols-outlined text-5xl text-accent/50">person_search</span>
+            </div>
+            <h2 class="text-2xl font-bold text-primary mb-2">Nenhum parlamentar selecionado</h2>
+            <p class="text-muted max-w-md hidden md:block">Busque pelo nome do parlamentar para visualizar o perfil completo com emendas, municípios beneficiados e indicadores de execução.</p>
+
+            <!-- Mobile: guia interativo com passos -->
+            <div class="md:hidden w-full max-w-sm mt-6 space-y-4">
+                <div class="flex items-start gap-3 text-left bg-accent/5 border border-accent/20 rounded-lg p-4">
+                    <span class="flex-shrink-0 w-7 h-7 rounded-full bg-accent text-white text-sm font-bold flex items-center justify-center">1</span>
+                    <div class="flex-grow">
+                        <p class="text-sm font-medium text-primary mb-2">Busque o parlamentar</p>
+                        <form id="searchFormMobile" class="flex items-center gap-2">
+                            <div class="relative flex-grow">
+                                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted">
+                                    <span class="material-symbols-outlined text-[18px]">search</span>
+                                </span>
+                                <input id="searchInputMobile" list="parlamentares-list" class="w-full pl-9 pr-3 py-2.5 text-sm border border-primary/15 rounded-lg bg-white text-primary focus:border-accent focus:ring-1 focus:ring-accent/30 placeholder:text-gray-400" placeholder="Digite o nome do Vereador ou Deputado..." type="text"/>
+                            </div>
+                            <button type="submit" class="bg-accent text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-accent/80 transition-colors active:scale-[0.98]">
+                                Buscar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Content (Hidden initially) -->
+        <div id="dashboardContent" class="hidden flex-col gap-8">
+            <!-- Breadcrumbs -->
+            <nav class="flex items-center text-sm text-muted">
+                <a class="hover:text-primary transition-colors" href="#">Dashboard Nacional</a>
+                <span class="mx-2">/</span>
+                <span class="text-primary font-medium">Perfil do Parlamentar</span>
+            </nav>
+
+            <!-- Profile Header -->
+            <section class="bg-gradient-to-br from-white via-white to-accent/5 border border-primary/10 rounded-lg p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start md:items-center relative overflow-hidden shadow-sm">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent via-primary to-accent"></div>
+                <div class="absolute top-0 right-0 w-64 h-full opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/graphy.png')]"></div>
+                <div class="relative">
+                    <div id="avatarContainer" class="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-3 border-accent/30 bg-gradient-to-br from-accent/10 to-primary/10 flex-shrink-0 flex items-center justify-center shadow-lg">
+                        <span id="avatarIcon" class="material-symbols-outlined text-5xl text-gray-400">person</span>
+                        <img id="avatarImg" class="hidden w-full h-full object-cover" alt="Foto do Parlamentar" />
+                    </div>
+                </div>
+                <div class="flex-grow space-y-2 z-10">
+                    <div class="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-4">
+                        <span class="text-xs font-bold uppercase tracking-wider text-muted border border-muted/30 px-2 py-0.5 rounded-sm w-fit">Parlamentar</span>
+                        <span class="text-xs font-mono text-success bg-success/10 px-2 py-0.5 rounded-sm flex items-center gap-1 w-fit">
+                            <span class="w-1.5 h-1.5 rounded-full bg-success animate-pulse"></span>
+                            Dados Atualizados
+                        </span>
+                    </div>
+                    <h1 id="parlamentarNome" class="text-3xl md:text-5xl font-bold text-primary tracking-tight">Nome do Parlamentar</h1>
+                    <div class="flex items-center gap-3 text-lg text-text-main font-medium">
+                        <span class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-accent text-xl">flag</span>
+                            <span id="parlamentarPartido">Partido</span>
+                            <span class="ml-2 text-xs font-semibold uppercase tracking-wider bg-accent/10 text-accent border border-accent/20 px-2 py-0.5 rounded-sm" id="parlamentarTipo"></span>
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary Cards Grid -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Card 1 -->
+                <div class="p-6 flex flex-col justify-between group bg-white border border-primary/10 rounded-lg hover:shadow-md transition-all relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-accent"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-sm font-bold text-muted uppercase tracking-wider">Total Indicado</h3>
+                        <span class="material-symbols-outlined text-accent/60 group-hover:text-accent transition-colors">account_balance_wallet</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span id="valorTotalIndicado" class="text-3xl md:text-4xl font-mono font-medium text-primary tracking-tight">R$ 0,00</span>
+                        <span class="text-xs text-muted mt-1 flex items-center gap-1" id="totalEmendasCount">
+                            0 emendas cadastradas
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="p-6 flex flex-col justify-between group bg-white border border-primary/10 rounded-lg hover:shadow-md transition-all relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-success"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-sm font-bold text-muted uppercase tracking-wider">Execução (Pago)</h3>
+                        <span class="material-symbols-outlined text-success/60 group-hover:text-success transition-colors">payments</span>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-baseline gap-2">
+                            <span id="percentualPago" class="text-3xl md:text-4xl font-mono font-medium text-primary tracking-tight">0%</span>
+                            <span class="text-sm text-muted">do total</span>
+                        </div>
+                        <div class="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
+                            <div id="barraProgressoPago" class="bg-success h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="p-6 flex flex-col justify-between group bg-white border border-primary/10 rounded-lg hover:shadow-md transition-all relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-warning"></div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-sm font-bold text-muted uppercase tracking-wider">Setor Prioritário</h3>
+                        <span class="material-symbols-outlined text-warning/60 group-hover:text-warning transition-colors">medication</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span id="topSetorNome" class="text-xl font-bold text-primary font-display">Nome do Setor</span>
+                        <span id="topSetorValor" class="text-sm font-mono text-text-main mt-1">R$ 0,00</span>
+                    </div>
+                </div>
+            </section>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Informações Adicionais -->
+                <section class="lg:col-span-1 bg-white border border-primary/10 rounded-lg p-6 flex flex-col h-full relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-accent"></div>
+                    <h3 class="text-lg font-bold text-primary mb-6 pl-3">Top Municípios Beneficiados</h3>
+                    
+                    <div id="listaMunicipios" class="mt-4 space-y-3 flex-grow overflow-y-auto max-h-[400px] pr-2">
+                        <!-- Itens dos municípios serão injetados aqui -->
+                    </div>
+                </section>
+
+                <!-- Allocation Table -->
+                <section class="lg:col-span-2 bg-white border border-primary/10 rounded-lg flex flex-col overflow-hidden">
+                    <div class="p-6 border-b border-primary/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-primary">Histórico de Emendas</h3>
+                            <p class="text-sm text-muted mt-1">Todas as alocações registradas.</p>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto flex-grow max-h-[500px] overflow-y-auto">
+                        <table class="w-full text-left border-collapse relative min-w-[800px]">
+                            <thead class="sticky top-0 z-10 bg-white">
+                                <tr class="bg-gradient-to-r from-primary/5 to-accent/5 border-b border-primary/10">
+                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display bg-white">Data / Código</th>
+                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display bg-white">Natureza</th>
+                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display bg-white">Município / Local</th>
+                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display bg-white">Destino</th>
+                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display bg-white">Status</th>
+                                    <th class="py-3 px-4 text-xs font-bold uppercase tracking-wider text-muted font-display text-right bg-white">Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaEmendas" class="divide-y divide-gray-100 text-sm">
+                                <!-- Linhas serão injetadas aqui -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Emenda Detail Modal -->
+<div id="emendaModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden transition-opacity duration-200 opacity-0" onclick="if(event.target===this)closeEmendaModal()">
+    <div id="emendaModalCard" class="bg-white rounded-2xl shadow-2xl p-6 mx-4 max-w-md w-full transform transition-transform duration-200 scale-95">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-primary font-display">Detalhes da Emenda</h3>
+            <button onclick="closeEmendaModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
+                <span class="material-symbols-outlined text-gray-400 hover:text-gray-600">close</span>
+            </button>
+        </div>
+        <div class="space-y-5">
+            <div>
+                <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Município</p>
+                <p id="modalMunicipio" class="text-lg font-semibold text-gray-900"></p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Objeto</p>
+                <p id="modalObjeto" class="text-sm text-gray-900 leading-relaxed"></p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Valor</p>
+                <p id="modalValor" class="text-2xl font-bold text-blue-600"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Bottom Sheet -->
+<div id="mobileSheet" class="fixed inset-0 z-50 hidden md:hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-[2px] sheet-overlay" onclick="closeSheet()"></div>
+    <div id="sheetPanel" class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl transform translate-y-full transition-transform duration-300 ease-out max-h-[85vh] overflow-y-auto">
+        <!-- Handle bar -->
+        <div class="flex justify-center pt-3 pb-1">
+            <div class="w-10 h-1 bg-gray-300 rounded-full"></div>
+        </div>
+        <div class="px-5 pb-6 pt-2 space-y-5">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold text-primary font-display">Dados & Busca</h3>
+                <button onclick="closeSheet()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
+                    <span class="material-symbols-outlined text-muted">close</span>
+                </button>
+            </div>
+
+            <!-- Year Selector -->
+            <div id="anoSelectorSheetContainer" class="hidden space-y-2">
+                <p class="text-xs font-bold uppercase tracking-wider text-muted">Ano</p>
+                <select id="anoSelectorSheet" class="w-full text-sm border border-primary/15 rounded-lg px-3 py-2.5 bg-white text-primary focus:border-accent focus:ring-1 focus:ring-accent/30 cursor-pointer">
+                </select>
+            </div>
+
+            <!-- Search -->
+            <div class="space-y-2">
+                <p class="text-xs font-bold uppercase tracking-wider text-muted">Buscar Parlamentar</p>
+                <form id="searchFormSheet" class="flex items-center gap-2">
+                    <div class="relative flex-grow">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
+                            <span class="material-symbols-outlined text-[18px]">search</span>
+                        </span>
+                        <input id="searchInputSheet" list="parlamentares-list" class="w-full pl-10 pr-3 py-2.5 text-sm border border-primary/15 rounded-lg bg-white text-primary focus:border-accent focus:ring-1 focus:ring-accent/30 placeholder:text-gray-400" placeholder="Digite o nome do Vereador ou Deputado..." type="text"/>
+                    </div>
+                    <button type="submit" class="bg-accent text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-accent/80 transition-colors active:scale-[0.98]">
+                        Buscar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile FAB (visível quando dashboard está ativo) -->
+<button id="mobileFab" class="hidden fixed bottom-6 right-6 z-40 md:hidden w-14 h-14 bg-accent text-white rounded-full shadow-lg hover:bg-accent/90 active:scale-95 transition-all flex items-center justify-center" onclick="openSheet()">
+    <span class="material-symbols-outlined text-[24px]">manage_search</span>
+</button>
+
+<footer class="mt-12 bg-gradient-to-r from-primary to-[#1e3a5f] py-12">
+    <div class="max-w-[1200px] mx-auto px-6">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8 lg:gap-12 mb-12">
+            <!-- Brand Column -->
+            <div class="md:col-span-5 flex flex-col gap-4">
+                <div class="flex items-center gap-2 text-white">
+                    <span class="material-symbols-outlined text-[28px] font-medium text-accent">ssid_chart</span>
+                    <h2 class="text-xl font-bold font-display tracking-tight">Lupa Cidadã</h2>
+                </div>
+                <p class="text-sm text-white/70 leading-relaxed max-w-sm">
+                    Plataforma independente de transparência pública. Nosso objetivo é democratizar o acesso aos dados orçamentários do Brasil através de visualizações claras e auditoria cidadã.
+                </p>
+            </div>
+
+            <!-- Platform Links -->
+            <div class="md:col-span-4 lg:col-span-3">
+                <h4 class="text-xs font-bold text-white/50 uppercase tracking-wider mb-6">Plataforma</h4>
+                <ul class="space-y-4">
+                    <li><a href="#" class="text-sm font-semibold text-white/90 hover:text-accent transition-colors">Como funciona</a></li>
+                    <li><a href="#" class="text-sm font-semibold text-white/90 hover:text-accent transition-colors">Dados Abertos</a></li>
+                    <li><a href="#" class="text-sm font-semibold text-white/90 hover:text-accent transition-colors">Ranking de Transparência</a></li>
+                    <li><a href="#" class="text-sm font-semibold text-white/90 hover:text-accent transition-colors">Metodologia</a></li>
+                </ul>
+            </div>
+
+            <!-- Institutional Links -->
+            <div class="md:col-span-3 lg:col-span-4">
+                <h4 class="text-xs font-bold text-white/50 uppercase tracking-wider mb-6">Institucional</h4>
+                <ul class="space-y-4">
+                    <li><a href="#" class="text-sm font-semibold text-white/90 hover:text-accent transition-colors">Sobre Nós</a></li>
+                    <li><a href="#" class="text-sm font-semibold text-white/90 hover:text-accent transition-colors">Privacidade</a></li>
+                    <li><a href="#" class="text-sm font-semibold text-white/90 hover:text-accent transition-colors">API para Desenvolvedores</a></li>
+                    <li><a href="#" class="text-sm font-semibold text-white/90 hover:text-accent transition-colors">Contato</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Copyright & Socials -->
+        <div class="pt-8 border-t border-white/20 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p class="text-xs font-medium text-white/50">
+                © 2026 Lupa Cidadã. Todos os direitos reservados. Dados oriundos do Portal da Transparência e Câmara dos Deputados.
+            </p>
+            <div class="flex items-center gap-4">
+                <a href="#" class="text-white/50 hover:text-accent transition-colors" aria-label="Twitter">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path></svg>
+                </a>
+                <a href="#" class="text-white/50 hover:text-accent transition-colors" aria-label="Instagram">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd"></path></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<datalist id="parlamentares-list"></datalist>
+
+<!-- Application Script (Backend Fetch) -->
+<script>
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.getElementById('searchInput');
+    const anoSelector = document.getElementById('anoSelector');
+    const anoSelectorContainer = document.getElementById('anoSelectorContainer');
+    const anoDivider = document.getElementById('anoDivider');
+
+    const emptyState = document.getElementById('emptyState');
+    const dashboardContent = document.getElementById('dashboardContent');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    // Mobile elements
+    const mobileSheet = document.getElementById('mobileSheet');
+    const mobileFab = document.getElementById('mobileFab');
+    const searchFormMobile = document.getElementById('searchFormMobile');
+    const searchInputMobile = document.getElementById('searchInputMobile');
+    const searchFormSheet = document.getElementById('searchFormSheet');
+    const searchInputSheet = document.getElementById('searchInputSheet');
+    const anoSelectorSheet = document.getElementById('anoSelectorSheet');
+    const anoSelectorSheetContainer = document.getElementById('anoSelectorSheetContainer');
+
+    let currentAno = null;
+
+    // --- Bottom Sheet ---
+    function openSheet() {
+        mobileSheet.classList.remove('hidden');
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                mobileSheet.classList.add('open');
+            });
+        });
+        document.body.style.overflow = 'hidden';
+    }
+    function closeSheet() {
+        mobileSheet.classList.remove('open');
+        setTimeout(() => {
+            mobileSheet.classList.add('hidden');
+            document.body.style.overflow = '';
+        }, 300);
+    }
+
+    // --- Emenda Detail Modal ---
+    function openEmendaModal(municipio, objeto, valorRaw) {
+        document.getElementById('modalMunicipio').textContent = municipio;
+        document.getElementById('modalObjeto').textContent = objeto;
+        document.getElementById('modalValor').textContent = formatCurrency(valorRaw);
+        const modal = document.getElementById('emendaModal');
+        modal.classList.remove('hidden');
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                document.getElementById('emendaModalCard').classList.remove('scale-95');
+            });
+        });
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeEmendaModal() {
+        const modal = document.getElementById('emendaModal');
+        modal.classList.add('opacity-0');
+        document.getElementById('emendaModalCard').classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }, 200);
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !document.getElementById('emendaModal').classList.contains('hidden')) {
+            closeEmendaModal();
+        }
+    });
+
+    // Show/hide FAB based on dashboard visibility
+    function updateFabVisibility() {
+        if (!dashboardContent.classList.contains('hidden')) {
+            mobileFab.classList.remove('hidden');
+            mobileFab.classList.add('flex');
+        } else {
+            mobileFab.classList.add('hidden');
+            mobileFab.classList.remove('flex');
+        }
+    }
+
+    // Base URL dinâmica - funciona local e no Vercel
+    const API_BASE = window.location.origin;
+
+    const formatDate = (value) => {
+        if (!value || value === '-') return '-';
+        const parts = value.split('-');
+        if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        return value;
+    };
+
+    const formatCurrency = (value) => {
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(value);
+    };
+
+    // Atualiza o seletor de anos (desktop + mobile sheet)
+    function updateAnoSelector(anos, selected) {
+        anoSelector.innerHTML = '';
+        anoSelectorSheet.innerHTML = '';
+        if (anos && anos.length > 0) {
+            anos.forEach(ano => {
+                const opt = document.createElement('option');
+                opt.value = ano;
+                opt.textContent = ano;
+                if (ano === selected) opt.selected = true;
+                anoSelector.appendChild(opt);
+
+                const optSheet = opt.cloneNode(true);
+                anoSelectorSheet.appendChild(optSheet);
+            });
+            anoSelectorContainer.classList.remove('hidden');
+            anoSelectorContainer.classList.add('flex');
+            anoSelectorSheetContainer.classList.remove('hidden');
+            anoDivider.style.display = '';
+            currentAno = selected || anos[0];
+        }
+    }
+
+    // Load available years from API on page load
+    async function loadAnos() {
+        try {
+            const resp = await fetch(`${API_BASE}/api/anos`);
+            const data = await resp.json();
+            if (data.anos && data.anos.length > 0) {
+                updateAnoSelector(data.anos, data.anos[0]);
+            }
+        } catch (e) {
+            // Silently ignore
+        }
+    }
+    loadAnos();
+
+    // Trocar ano selecionado (desktop)
+    anoSelector.addEventListener('change', async () => {
+        currentAno = anoSelector.value;
+        anoSelectorSheet.value = currentAno;
+        const nomeAtual = document.getElementById('parlamentarNome').textContent;
+        if (nomeAtual && nomeAtual !== 'Nome do Parlamentar' && !dashboardContent.classList.contains('hidden')) {
+            doSearch(nomeAtual);
+        }
+    });
+
+    // Busca foto do parlamentar na Wikipedia
+    async function fetchWikipediaPhoto(nome) {
+        const avatarIcon = document.getElementById('avatarIcon');
+        const avatarImg = document.getElementById('avatarImg');
+
+        // Reset para ícone padrão
+        avatarIcon.classList.remove('hidden');
+        avatarImg.classList.add('hidden');
+        avatarImg.src = '';
+
+        try {
+            // Passo 1: Busca inteligente para lidar com acentos, nomes compostos ou diferenças do registro oficial
+            const searchUrl = `https://pt.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(nome)}&utf8=&format=json&origin=*`;
+            const searchResp = await fetch(searchUrl);
+            const searchData = await searchResp.json();
+            
+            if (!searchData.query || !searchData.query.search || searchData.query.search.length === 0) {
+                // Tenta novamente apenas com o primeiro e último nome (fallback)
+                const partes = nome.trim().split(' ');
+                if (partes.length > 2) {
+                    const nomeCurto = partes[0] + ' ' + partes[partes.length - 1];
+                    const searchUrl2 = `https://pt.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(nomeCurto)}&utf8=&format=json&origin=*`;
+                    const searchResp2 = await fetch(searchUrl2);
+                    const searchData2 = await searchResp2.json();
+                    if (searchData2.query && searchData2.query.search && searchData2.query.search.length > 0) {
+                        searchData.query = searchData2.query;
+                    }
+                }
+            }
+            
+            if (searchData.query && searchData.query.search && searchData.query.search.length > 0) {
+                // Pega o melhor titulo encontrado (ex: "Gerson Dias Pessoa" -> "Gérson Pessoa")
+                const melhorTitulo = searchData.query.search[0].title;
+                
+                // Passo 2: Puxa a foto exata desta página
+                const imgUrl = `https://pt.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(melhorTitulo)}&prop=pageimages&format=json&pithumbsize=300&origin=*`;
+                const imgResp = await fetch(imgUrl);
+                const imgData = await imgResp.json();
+
+                const pages = imgData.query.pages;
+                const pageId = Object.keys(pages)[0];
+
+                if (pageId !== '-1' && pages[pageId].thumbnail) {
+                    avatarImg.src = pages[pageId].thumbnail.source;
+                    avatarImg.onload = () => {
+                        avatarIcon.classList.add('hidden');
+                        avatarImg.classList.remove('hidden');
+                    };
+                }
+            }
+        } catch (e) {
+            // Silenciosamente mantém o ícone padrão
+        }
+    }
+
+    // Autocomplete handler
+    let debounceTimer;
+    const datalist = document.getElementById('parlamentares-list');
+    
+    async function handleSearchInput(e) {
+        const query = e.target.value.trim();
+        if (query.length < 2) return;
+        
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(async () => {
+            try {
+                const resp = await fetch(`${API_BASE}/api/search_nomes?q=${encodeURIComponent(query)}`);
+                if (!resp.ok) return;
+                const names = await resp.json();
+                
+                datalist.innerHTML = '';
+                names.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    datalist.appendChild(option);
+                });
+            } catch (err) {}
+        }, 300);
+    }
+
+    searchInput.addEventListener('input', handleSearchInput);
+    searchInputMobile.addEventListener('input', handleSearchInput);
+    searchInputSheet.addEventListener('input', handleSearchInput);
+
+    // Sync sheet year selector
+    anoSelectorSheet.addEventListener('change', () => {
+        currentAno = anoSelectorSheet.value;
+        anoSelector.value = currentAno;
+    });
+
+    // Shared search function
+    async function doSearch(query) {
+        if (!query) {
+            alert("Digite o nome de um parlamentar.");
+            return;
+        }
+
+        loadingOverlay.classList.remove('hidden');
+
+        try {
+            const anoParam = currentAno ? `?ano=${encodeURIComponent(currentAno)}` : '';
+            const response = await fetch(`${API_BASE}/api/parlamentar/${encodeURIComponent(query)}${anoParam}`);
+            const data = await response.json();
+
+            loadingOverlay.classList.add('hidden');
+
+            if (response.ok && data.success) {
+                renderDashboard(data);
+                closeSheet();
+                updateFabVisibility();
+            } else {
+                emptyState.classList.remove('hidden');
+                dashboardContent.classList.add('hidden');
+                updateFabVisibility();
+                alert(data.error || "Parlamentar não encontrado.");
+            }
+        } catch (error) {
+            loadingOverlay.classList.add('hidden');
+            alert('Falha na comunicação com o servidor API.');
+        }
+    }
+
+    // Search handlers (desktop)
+    searchForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        doSearch(searchInput.value.trim());
+    });
+
+    // Search handlers (mobile empty state)
+    searchFormMobile.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const query = searchInputMobile.value.trim();
+        searchInput.value = query; // sync desktop input
+        doSearch(query);
+    });
+
+    // Search handlers (mobile bottom sheet)
+    searchFormSheet.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const query = searchInputSheet.value.trim();
+        searchInput.value = query; // sync desktop input
+        doSearch(query);
+    });
+
+    // Inject data from Backend JSON response
+    function renderDashboard(data) {
+        // Headers
+        document.getElementById('parlamentarNome').textContent = data.parlamentar.nome;
+        document.getElementById('parlamentarPartido').textContent = data.parlamentar.partido;
+        const tipoEl = document.getElementById('parlamentarTipo');
+        if (tipoEl) {
+            let textTipo = data.parlamentar.tipo;
+            if (data.parlamentar.uf && textTipo === 'Deputado Federal') {
+                textTipo += ` (${data.parlamentar.uf})`;
+            }
+            tipoEl.textContent = textTipo;
+        }
+
+        const avatarIcon = document.getElementById('avatarIcon');
+        const avatarImg = document.getElementById('avatarImg');
+        avatarIcon.classList.remove('hidden');
+        avatarImg.classList.add('hidden');
+        avatarImg.src = '';
+
+        if (data.parlamentar.foto) {
+            avatarImg.src = data.parlamentar.foto;
+            avatarImg.onload = () => {
+                avatarIcon.classList.add('hidden');
+                avatarImg.classList.remove('hidden');
+            };
+        } else {
+            // Foto Wikipedia fallback
+            fetchWikipediaPhoto(data.parlamentar.nome);
+        }
+
+        // Indicadores (Cards)
+        document.getElementById('valorTotalIndicado').textContent = formatCurrency(data.indicadores.total_indicado);
+        document.getElementById('totalEmendasCount').textContent = `${data.indicadores.count} emendas cadastradas`;
+
+        document.getElementById('percentualPago').textContent = `${data.indicadores.execucao_pago.toFixed(1)}%`;
+        document.getElementById('barraProgressoPago').style.width = `${data.indicadores.execucao_pago.toFixed(1)}%`;
+
+        // Setor prioritário — pode ter até 2 empatados
+        const setores = data.indicadores.setor_prioritario;
+        if (setores.length === 1) {
+            document.getElementById('topSetorNome').textContent = setores[0].nome;
+            document.getElementById('topSetorValor').textContent = formatCurrency(setores[0].valor);
+        } else if (setores.length >= 2) {
+            document.getElementById('topSetorNome').textContent = `${setores[0].nome} e ${setores[1].nome}`;
+            document.getElementById('topSetorValor').textContent = formatCurrency(setores[0].valor) + ' cada';
+        } else {
+            document.getElementById('topSetorNome').textContent = '-';
+            document.getElementById('topSetorValor').textContent = 'R$ 0,00';
+        }
+
+        // Lista Esquerda: Base Eleitoral (Top Municípios)
+        const munListEl = document.getElementById('listaMunicipios');
+        munListEl.innerHTML = '';
+        
+        let indexMun = 1;
+        // Ordenando do maior para o menor no Javascript
+        const sortedMun = Object.entries(data.top_municipios).sort((a, b) => b[1] - a[1]);
+        
+        for (const [city, val] of sortedMun) {
+            const pct = data.indicadores.total_indicado > 0 ? ((val/data.indicadores.total_indicado)*100).toFixed(1) : 0;
+            const div = document.createElement('div');
+            div.className = 'flex items-center justify-between text-sm border-b border-gray-100 pb-2 pt-2 last:border-0';
+            div.innerHTML = `
+                <span class="flex items-center gap-2">
+                    <span class="text-muted font-mono">${String(indexMun).padStart(2,'0')}</span>
+                    <span class="font-medium text-primary truncate max-w-[150px]" title="${city}">${city}</span>
+                </span>
+                <span class="font-mono text-text-main">${formatCurrency(val)} <span class="text-xs text-muted">(${pct}%)</span></span>
+            `;
+            munListEl.appendChild(div);
+            indexMun++;
+        }
+
+        // Tabela
+        const tbody = document.getElementById('tabelaEmendas');
+        tbody.innerHTML = '';
+        
+        data.historico.forEach(row => {
+            const statusBadgeClasses = row.is_pago
+                ? 'bg-success/10 text-success border-success/20'
+                : 'bg-warning/10 text-warning-700 border-warning/20';
+
+            // Natureza badge colors
+            const natureza = (row.natureza || '').trim();
+            let naturezaClasses = 'bg-gray-100 text-gray-600 border-gray-200';
+            if (natureza.toLowerCase().includes('impositiva')) {
+                naturezaClasses = 'bg-blue-50 text-blue-700 border-blue-200';
+            } else if (natureza.toLowerCase().includes('federal')) {
+                naturezaClasses = 'bg-purple-50 text-purple-700 border-purple-200';
+            } else if (natureza.toLowerCase().includes('voluntária') || natureza.toLowerCase().includes('voluntaria')) {
+                naturezaClasses = 'bg-amber-50 text-amber-700 border-amber-200';
+            }
+
+            const tr = document.createElement('tr');
+            tr.className = 'group hover:bg-blue-50/30 transition-colors cursor-pointer border-b border-gray-100 last:border-0 bg-white';
+            tr.innerHTML = `
+                <td class="py-4 px-4 font-mono text-text-main whitespace-nowrap align-top">
+                    <div>${formatDate(row.data)}</div>
+                    <div class="text-xs text-muted">${row.codigo}</div>
+                </td>
+                <td class="py-4 px-4 whitespace-nowrap align-top">
+                    ${natureza ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${naturezaClasses}">${natureza}</span>` : '-'}
+                </td>
+                <td class="py-4 px-4 font-medium text-primary align-top max-w-[150px] break-words">
+                    ${row.municipio}
+                </td>
+                <td class="py-4 px-4 text-text-main max-w-[200px] align-top">
+                    <div class="flex flex-col">
+                        <span class="break-words line-clamp-2" title="${row.objeto}">${row.objeto}</span>
+                        <span class="text-xs text-muted break-words line-clamp-2 mt-1" title="${row.destino}">${row.destino}</span>
+                    </div>
+                </td>
+                <td class="py-4 px-4 whitespace-nowrap align-top">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${statusBadgeClasses}">
+                        ${row.status}
+                    </span>
+                </td>
+                <td class="py-4 px-4 text-right font-mono font-medium text-primary whitespace-nowrap align-top">
+                    ${formatCurrency(row.valor_raw)}
+                </td>
+            `;
+            tr.addEventListener('click', () => {
+                openEmendaModal(row.municipio, row.objeto, row.valor_raw);
+            });
+            tbody.appendChild(tr);
+        });
+
+        emptyState.classList.add('hidden');
+        dashboardContent.classList.remove('hidden');
+        dashboardContent.classList.add('flex');
+    }
+</script>
+</body>
+</html>

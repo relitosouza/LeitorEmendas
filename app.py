@@ -106,6 +106,114 @@ def search_nomes():
     return jsonify(sorted_names)
 
 
+@app.route('/api/search_municipios')
+def search_municipios():
+    """Return a list of unique names matching a query for autocomplete."""
+    query = request.args.get('q', '').strip().lower()
+    if not query:
+        return jsonify([])
+
+    result = _supabase.table('emendas').select('municipio').ilike('municipio', f'%{query}%').limit(1000).execute()
+    
+    names_set = set()
+    for row in result.data:
+        if row.get('municipio'):
+            names_set.add(row['municipio'].strip())
+            
+    sorted_names = sorted(list(names_set))
+    return jsonify(sorted_names)
+
+
+@app.route('/api/cidade/<path:query>')
+def get_cidade_data(query):
+    query_lower = query.lower().strip()
+    ano = request.args.get('ano')
+
+    q = _supabase.table('emendas').select('*').ilike('municipio', f'%{query_lower}%').limit(5000)
+    result = q.execute()
+    rows = result.data
+
+    if not rows:
+        return jsonify({"error": "Nenhuma cidade encontrada"}), 404
+
+    if ano:
+        rows = [r for r in rows if str(r.get('ano', '')) == str(ano)]
+        if not rows:
+            return jsonify({"error": f"Cidade sem dados para o ano {ano}"}), 404
+
+    df = pd.DataFrame(rows)
+    df['valor_num'] = pd.to_numeric(df['valor'], errors='coerce').fillna(0.0)
+    df['pago_flag'] = df['pago'].astype(bool)
+
+    if df.empty:
+      return jsonify({"error": "Nenhuma cidade encontrada"}), 404
+
+    first = df.iloc[0]
+    cidade_real = str(safe_val(first.get('municipio'), 'N/A'))
+    uf_real = "SP"
+
+    total_val = float(df['valor_num'].sum())
+    total_pagos = float(df[df['pago_flag']]['valor_num'].sum())
+    pct_pago = (total_pagos / total_val * 100) if total_val > 0 else 0
+
+    setor_prioritario = {}
+    if 'funcao' in df.columns:
+        func_grp = df.groupby('funcao')['valor_num'].sum().reset_index()
+        if not func_grp.empty:
+            top_func = func_grp.sort_values('valor_num', ascending=False).iloc[0]
+            val = float(safe_val(top_func['valor_num'], 0))
+            pct = (val / total_val * 100) if total_val > 0 else 0
+            setor_prioritario = {
+                "nome": str(safe_val(top_func['funcao'], 'N/A')),
+                "percentual": round(pct, 1)
+            }
+
+    maior_benfeitor = {}
+    if 'nome' in df.columns:
+        parl_grp = df.groupby('nome')['valor_num'].sum().reset_index()
+        if not parl_grp.empty:
+            top_parl = parl_grp.sort_values('valor_num', ascending=False).iloc[0]
+            maior_benfeitor = {
+                "nome": str(safe_val(top_parl['nome'], 'N/A')),
+                "valor": float(safe_val(top_parl['valor_num'], 0))
+            }
+
+    partidos = []
+    if 'partido' in df.columns:
+        valid_part = df[df['partido'].notna() & (df['partido'] != '')]
+        part_grp = valid_part.groupby('partido')['valor_num'].sum().reset_index()
+        partidos = [str(p) for p in part_grp.sort_values('valor_num', ascending=False)['partido'].head(5).tolist()]
+
+    historico = []
+    for _, row in df.sort_values('valor_num', ascending=False).iterrows():
+        is_pago = bool(row.get('pago_flag', False))
+        historico.append({
+            "ano": str(safe_val(row.get('ano', '-'))),
+            "parlamentar": str(safe_val(row.get('nome', ''), '')),
+            "partido": str(safe_val(row.get('partido', ''), '')),
+            "objeto": str(safe_val(row.get('objeto', ''), '')),
+            "status": str(safe_val(row.get('status', ''), '')),
+            "natureza": str(safe_val(row.get('natureza', ''), '')),
+            "is_pago": is_pago,
+            "valor_raw": float(safe_val(row.get('valor_num', 0), 0)),
+        })
+
+    return jsonify({
+        "success": True,
+        "cidade": cidade_real,
+        "uf": uf_real,
+        "indicadores": {
+            "total_indicado": total_val,
+            "count": len(df),
+            "execucao_pago": pct_pago
+        },
+        "maior_benfeitor": maior_benfeitor,
+        "setor_prioritario": setor_prioritario,
+        "partidos": partidos,
+        "historico": historico,
+    })
+
+
 @app.route('/api/parlamentar/<path:query>')
 def get_parlamentar_data(query):
     query_lower = query.lower().strip()
@@ -214,6 +322,12 @@ def get_parlamentar_data(query):
 @app.route('/')
 def index():
     with open('index.html', 'r', encoding='utf-8') as f:
+        return render_template_string(f.read())
+
+
+@app.route('/parlamentar')
+def parlamentar():
+    with open('parlamentar.html', 'r', encoding='utf-8') as f:
         return render_template_string(f.read())
 
 
