@@ -56,6 +56,65 @@ def get_camara_info(nome):
     return None
 
 
+# Cache de vereadores de SP (carregado uma vez)
+_vereadores_sp_cache = None
+
+def _carregar_vereadores_sp():
+    """Carrega a lista de vereadores de SP do site oficial da Câmara Municipal."""
+    global _vereadores_sp_cache
+    if _vereadores_sp_cache is not None:
+        return _vereadores_sp_cache
+    try:
+        import re
+        resp = requests.get('https://www.saopaulo.sp.leg.br/vereadores/membros/', timeout=10)
+        if resp.status_code == 200:
+            html = resp.text
+            # Estrutura: <img src="...foto..."> ... <img src="...partido..."> ... <h3>Nome</h3>
+            # Captura o primeiro img src (foto) seguido do <h3> (nome) dentro de cada card
+            pattern = r'<img[^>]+src=["\']([^"\']+/wp-content/uploads/[^"\']+)["\'][^>]*alt=["\']foto[^"\']*["\'][^>]*>.*?<h3[^>]*>\s*([^<]+?)\s*</h3>'
+            matches = re.findall(pattern, html, re.DOTALL | re.IGNORECASE)
+
+            _vereadores_sp_cache = {}
+            for foto_url, nome in matches:
+                _vereadores_sp_cache[nome.strip().lower()] = foto_url.strip()
+            return _vereadores_sp_cache
+    except Exception:
+        pass
+    _vereadores_sp_cache = {}
+    return _vereadores_sp_cache
+
+
+def get_vereador_sp_foto(nome):
+    """Busca foto do vereador de SP no cache do site oficial."""
+    import unicodedata
+    cache = _carregar_vereadores_sp()
+    if not cache:
+        return ""
+
+    nome_lower = nome.lower().strip()
+
+    # Busca exata
+    if nome_lower in cache:
+        return cache[nome_lower]
+
+    # Busca parcial (nome contido ou contém)
+    for cached_nome, foto_url in cache.items():
+        if nome_lower in cached_nome or cached_nome in nome_lower:
+            return foto_url
+
+    # Remove acentos e tenta novamente
+    def sem_acento(s):
+        return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
+
+    nome_sa = sem_acento(nome_lower)
+    for cached_nome, foto_url in cache.items():
+        cached_sa = sem_acento(cached_nome)
+        if nome_sa in cached_sa or cached_sa in nome_sa:
+            return foto_url
+
+    return ""
+
+
 # ── CORS ─────────────────────────────────────────────────────────────────────
 @app.after_request
 def add_cors_headers(response):
@@ -246,6 +305,7 @@ def get_parlamentar_data(query):
 
     if tipo_real.lower() == 'vereador':
         tipo_exibicao = "Vereador de SP"
+        foto_url = get_vereador_sp_foto(nome_real)
     elif 'deputado' in tipo_real.lower():
         camara_info = get_camara_info(nome_real)
         if camara_info:

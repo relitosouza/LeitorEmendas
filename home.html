@@ -74,19 +74,21 @@
                         Acompanhe o destino das emendas parlamentares e fortaleça o controle social no Brasil. Transformamos dados complexos em informação clara para você.
                     </p>
                 </div>
-                <div class="w-full max-w-2xl">
-                    <form id="searchForm" class="flex w-full items-stretch rounded-xl h-16 shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900">
+                <div class="w-full max-w-2xl relative">
+                    <form id="searchForm" class="flex w-full items-stretch rounded-xl h-16 shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900 relative z-20">
                         <div class="text-slate-400 flex items-center justify-center pl-6">
                             <span class="material-symbols-outlined">search</span>
                         </div>
-                        <input id="searchInput" list="search-suggestions" class="flex-1 bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 px-4 text-base placeholder:text-slate-400" placeholder="Buscar por Cidade, Deputado ou Senador..." />
-                        <datalist id="search-suggestions"></datalist>
+                        <input id="searchInput" autocomplete="off" class="flex-1 bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 px-4 text-base placeholder:text-slate-400" placeholder="Buscar por Cidade, Deputado ou Senador..." />
                         <div class="flex items-center pr-2">
                             <button type="submit" class="h-12 px-8 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-all">
                                 Pesquisar
                             </button>
                         </div>
                     </form>
+                    <!-- Custom dropdown -->
+                    <div id="searchDropdown" class="hidden absolute left-0 right-0 top-[64px] z-30 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl max-h-80 overflow-y-auto">
+                    </div>
                     <div class="mt-3 flex gap-2 items-center text-sm text-slate-500">
                         <span>Exemplos:</span>
                         <a class="underline hover:text-primary search-example" href="#" data-query="São Paulo">São Paulo</a>,
@@ -337,16 +339,86 @@
 <script>
     const API_BASE = window.location.origin;
     const searchInput = document.getElementById('searchInput');
-    const datalist = document.getElementById('search-suggestions');
+    const dropdown = document.getElementById('searchDropdown');
     let debounceTimer;
-    // Track matched names to know if query is a municipio or parlamentar
     let matchedMunicipios = [];
     let matchedParlamentares = [];
+    let selectedIndex = -1;
+
+    function showDropdown() { dropdown.classList.remove('hidden'); }
+    function hideDropdown() { dropdown.classList.add('hidden'); selectedIndex = -1; }
+
+    function renderDropdown() {
+        if (matchedMunicipios.length === 0 && matchedParlamentares.length === 0) {
+            hideDropdown();
+            return;
+        }
+
+        let html = '';
+
+        if (matchedMunicipios.length > 0) {
+            html += `<div class="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">Municípios</div>`;
+            matchedMunicipios.forEach((name, i) => {
+                html += `<div class="dropdown-item flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-primary/5 transition-colors border-b border-slate-50 dark:border-slate-800" data-type="municipio" data-value="${name}" data-index="${i}">
+                    <span class="material-symbols-outlined text-primary text-xl">location_city</span>
+                    <span class="text-sm font-medium text-slate-800 dark:text-slate-200">${name}</span>
+                    <span class="ml-auto text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded">Cidade</span>
+                </div>`;
+            });
+        }
+
+        if (matchedParlamentares.length > 0) {
+            html += `<div class="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700">Parlamentares</div>`;
+            matchedParlamentares.forEach((name, i) => {
+                const idx = matchedMunicipios.length + i;
+                html += `<div class="dropdown-item flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-primary/5 transition-colors border-b border-slate-50 dark:border-slate-800" data-type="parlamentar" data-value="${name}" data-index="${idx}">
+                    <span class="material-symbols-outlined text-amber-500 text-xl">person</span>
+                    <span class="text-sm font-medium text-slate-800 dark:text-slate-200">${name}</span>
+                    <span class="ml-auto text-[10px] font-bold uppercase tracking-wider text-amber-500 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded">Parlamentar</span>
+                </div>`;
+            });
+        }
+
+        dropdown.innerHTML = html;
+        showDropdown();
+
+        // Click handlers on items
+        dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                const type = this.dataset.type;
+                const value = this.dataset.value;
+                searchInput.value = value;
+                hideDropdown();
+                navigateTo(type, value);
+            });
+        });
+    }
+
+    function navigateTo(type, query) {
+        if (type === 'parlamentar') {
+            window.location.href = '/parlamentar?q=' + encodeURIComponent(query);
+        } else {
+            window.location.href = '/municipios?q=' + encodeURIComponent(query);
+        }
+    }
+
+    function doSearch(query) {
+        if (!query) return;
+        const isMunicipio = matchedMunicipios.some(m => m.toLowerCase() === query.toLowerCase());
+        const isParlamentar = matchedParlamentares.some(p => p.toLowerCase() === query.toLowerCase());
+
+        if (isParlamentar && !isMunicipio) {
+            navigateTo('parlamentar', query);
+        } else {
+            navigateTo('municipio', query);
+        }
+    }
 
     // Autocomplete: fetch suggestions from both APIs
     searchInput.addEventListener('input', function() {
         const query = this.value.trim();
-        if (query.length < 2) { datalist.innerHTML = ''; return; }
+        if (query.length < 2) { hideDropdown(); return; }
 
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(async () => {
@@ -357,47 +429,62 @@
                 ]);
                 matchedMunicipios = mResp.ok ? await mResp.json() : [];
                 matchedParlamentares = pResp.ok ? await pResp.json() : [];
-
-                datalist.innerHTML = '';
-                matchedMunicipios.forEach(name => {
-                    const opt = document.createElement('option');
-                    opt.value = name;
-                    opt.label = name + ' (Município)';
-                    datalist.appendChild(opt);
-                });
-                matchedParlamentares.forEach(name => {
-                    const opt = document.createElement('option');
-                    opt.value = name;
-                    opt.label = name + ' (Parlamentar)';
-                    datalist.appendChild(opt);
-                });
-            } catch (err) {}
+                selectedIndex = -1;
+                renderDropdown();
+            } catch (err) { hideDropdown(); }
         }, 300);
     });
 
-    // Submit: detect if it's a municipio or parlamentar and redirect accordingly
-    function doSearch(query) {
-        if (!query) return;
-        const isMunicipio = matchedMunicipios.some(m => m.toLowerCase() === query.toLowerCase());
-        const isParlamentar = matchedParlamentares.some(p => p.toLowerCase() === query.toLowerCase());
+    // Keyboard navigation
+    searchInput.addEventListener('keydown', function(e) {
+        const items = dropdown.querySelectorAll('.dropdown-item');
+        if (!items.length || dropdown.classList.contains('hidden')) return;
 
-        if (isParlamentar && !isMunicipio) {
-            window.location.href = '/parlamentar?q=' + encodeURIComponent(query);
-        } else {
-            // Default to municipios page
-            window.location.href = '/municipios?q=' + encodeURIComponent(query);
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+            updateSelection(items);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedIndex = Math.max(selectedIndex - 1, 0);
+            updateSelection(items);
+        } else if (e.key === 'Enter' && selectedIndex >= 0) {
+            e.preventDefault();
+            const item = items[selectedIndex];
+            searchInput.value = item.dataset.value;
+            hideDropdown();
+            navigateTo(item.dataset.type, item.dataset.value);
+        } else if (e.key === 'Escape') {
+            hideDropdown();
+        }
+    });
+
+    function updateSelection(items) {
+        items.forEach((item, i) => {
+            item.classList.toggle('bg-primary/10', i === selectedIndex);
+        });
+        if (items[selectedIndex]) {
+            items[selectedIndex].scrollIntoView({ block: 'nearest' });
         }
     }
 
-    document.getElementById('searchForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        doSearch(searchInput.value.trim());
+    // Hide dropdown on blur
+    searchInput.addEventListener('blur', function() {
+        setTimeout(hideDropdown, 200);
     });
 
-    // Also trigger on datalist selection
-    searchInput.addEventListener('change', function() {
-        const query = this.value.trim();
-        if (query) doSearch(query);
+    // Show dropdown on focus if there are results
+    searchInput.addEventListener('focus', function() {
+        if (matchedMunicipios.length > 0 || matchedParlamentares.length > 0) {
+            renderDropdown();
+        }
+    });
+
+    // Form submit
+    document.getElementById('searchForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        hideDropdown();
+        doSearch(searchInput.value.trim());
     });
 
     // Example search links

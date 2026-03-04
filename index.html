@@ -555,12 +555,10 @@
         document.getElementById('paginationInfo').textContent = `Mostrando ${data.historico.length} resultados`;
     }
 
-    // Initialize with city from URL or do nothing until user searches
-    document.addEventListener('DOMContentLoaded', () => {
-        if (currentCity) {
-            fetchCityData(currentCity);
-        }
-    });
+    // Initialize with city from URL or default (Osasco)
+    if (currentCity) {
+        fetchCityData(currentCity);
+    }
 
 </script>
 </body></html>
