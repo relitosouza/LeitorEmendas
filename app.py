@@ -56,49 +56,78 @@ def get_camara_info(nome):
     return None
 
 
-# Cache de vereadores de SP (carregado uma vez)
-_vereadores_sp_cache = None
-
-def _carregar_vereadores_sp():
-    """Carrega a lista de vereadores de SP do site oficial da Câmara Municipal."""
-    global _vereadores_sp_cache
-    if _vereadores_sp_cache is not None:
-        return _vereadores_sp_cache
-    try:
-        import re
-        resp = requests.get('https://www.saopaulo.sp.leg.br/vereadores/membros/', timeout=10)
-        if resp.status_code == 200:
-            html = resp.text
-            # Estrutura: <img src="...foto..."> ... <img src="...partido..."> ... <h3>Nome</h3>
-            # Captura o primeiro img src (foto) seguido do <h3> (nome) dentro de cada card
-            pattern = r'<img[^>]+src=["\']([^"\']+/wp-content/uploads/[^"\']+)["\'][^>]*alt=["\']foto[^"\']*["\'][^>]*>.*?<h3[^>]*>\s*([^<]+?)\s*</h3>'
-            matches = re.findall(pattern, html, re.DOTALL | re.IGNORECASE)
-
-            _vereadores_sp_cache = {}
-            for foto_url, nome in matches:
-                _vereadores_sp_cache[nome.strip().lower()] = foto_url.strip()
-            return _vereadores_sp_cache
-    except Exception:
-        pass
-    _vereadores_sp_cache = {}
-    return _vereadores_sp_cache
+# Fotos oficiais dos vereadores de SP (Câmara Municipal de São Paulo)
+# Fonte: https://www.saopaulo.sp.leg.br/vereadores/membros/
+_VEREADORES_SP_FOTOS = {
+    "adilson amadeu": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2014/10/adilson_2024.jpg",
+    "adrilles jorge": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2024/11/adrilles_2025.jpg",
+    "alessandro guedes": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2017/01/ale_guedes_2025.jpg",
+    "amanda paschoal": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2024/11/amanda_paschoal_2025.jpg",
+    "amanda vettorazzo": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2024/11/amanda_vetorazzo_2025-1.jpg",
+    "ana carolina oliveira": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2024/11/ana_carolina_2025-1.jpg",
+    "andré santos": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2017/01/andre_santos_2025.jpg",
+    "carlos bezerra jr.": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2021/01/carlos_bezerra-1.jpg",
+    "celso giannazi": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/celso_gianazi_2025.jpg",
+    "cris monteiro": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/cris_monteiro_2025.jpg",
+    "danilo do posto de saúde": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/danilo_2025.jpg",
+    "dheison silva": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2024/11/dheison_2025.jpg",
+    "dr. milton ferreira": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2017/01/milton_2024.jpg",
+    "dr. murillo lima": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2024/11/dr-murillo-lima.jpg",
+    "dra. sandra tadeu": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2014/10/dra_sandra_2025.jpg",
+    "edir sales": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/edir_salles_2025.jpg",
+    "eliseu gabriel": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/eliseu_gabriel_2025.jpg",
+    "ely teruel": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2021/01/teruel_2024-1.jpg",
+    "fabio riva": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2017/01/fabio-riva.png",
+    "gabriel abreu": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/gabriel_abreu_2025.jpg",
+    "george hato": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2014/10/hato_2025.jpg",
+    "gilberto nascimento": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/gilberto_2025.jpg",
+    "hélio rodrigues": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2017/10/vereador-helio-rodrigues.jpg",
+    "isac félix": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/isac_felix_2025.jpg",
+    "jair tatto": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2014/10/jair_2024.jpg",
+    "janaina paschoal": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/janaina_paschoal_2025.jpg",
+    "joão ananias": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2023/03/joao_ananias_2025.jpg",
+    "joão jorge": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/joao_jorge_2025.jpg",
+    "keit lima": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2024/11/Keit-Lima.jpg",
+    "kenji ito": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2024/11/kenji_2025.jpg",
+    "luana alves": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/luana_2025.jpg",
+    "lucas pavanato": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/lucas_2025.jpg",
+    "luna zarattini": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/luna_2025.jpg",
+    "major palumbo": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2024/11/major_2025.jpg",
+    "marcelo messias": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2021/01/marcelo_2024-1.jpg",
+    "marina bragante": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/marina_2025.jpg",
+    "nabil bonduki": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/nabil_2025.jpg",
+    "pastora sandra alves": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2024/11/pastora-sandra-alves-2025.jpg",
+    "paulo frange": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2014/10/frange_2025.jpg",
+    "professor toninho vespoli": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/professor_toninho_2025.jpg",
+    "renata falzoni": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/renata_2025.jpg",
+    "roberto tripoli": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/tripoli_2025.jpg",
+    "rubinho nunes": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2021/01/rubinho_2025.jpg",
+    "rute costa": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2017/01/rute-costa.jpg",
+    "sandra santana": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/sandra_santana_2025.jpg",
+    "sansão pereira": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2021/01/sansao_2025-2.jpg",
+    "sargento nantes": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2024/11/sargento_2025-1.jpg",
+    "senival moura": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2014/10/senival_2025.jpg",
+    "silvão leite": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/silvao_2025.jpg",
+    "silvia da bancada feminista": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2020/12/silvia_2025.jpg",
+    "silvinho leite": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2024/11/silvinho_2025.jpg",
+    "simone ganem": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/simone_2025.jpg",
+    "sonaira fernandes": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2021/01/sonaira2025.jpg",
+    "thammy miranda": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/thammy_2025.jpg",
+    "zoe martínez": "https://www.saopaulo.sp.leg.br/wp-content/uploads/2025/02/zoe_2025.jpg",
+}
 
 
 def get_vereador_sp_foto(nome):
-    """Busca foto do vereador de SP no cache do site oficial."""
+    """Busca foto do vereador de SP no dicionário oficial."""
     import unicodedata
-    cache = _carregar_vereadores_sp()
-    if not cache:
-        return ""
-
     nome_lower = nome.lower().strip()
 
     # Busca exata
-    if nome_lower in cache:
-        return cache[nome_lower]
+    if nome_lower in _VEREADORES_SP_FOTOS:
+        return _VEREADORES_SP_FOTOS[nome_lower]
 
-    # Busca parcial (nome contido ou contém)
-    for cached_nome, foto_url in cache.items():
+    # Busca parcial (nome do banco contido no dicionário ou vice-versa)
+    for cached_nome, foto_url in _VEREADORES_SP_FOTOS.items():
         if nome_lower in cached_nome or cached_nome in nome_lower:
             return foto_url
 
@@ -107,7 +136,7 @@ def get_vereador_sp_foto(nome):
         return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
 
     nome_sa = sem_acento(nome_lower)
-    for cached_nome, foto_url in cache.items():
+    for cached_nome, foto_url in _VEREADORES_SP_FOTOS.items():
         cached_sa = sem_acento(cached_nome)
         if nome_sa in cached_sa or cached_sa in nome_sa:
             return foto_url
