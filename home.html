@@ -39,12 +39,12 @@
 <div class="layout-container flex h-full grow flex-col">
 
 <!-- Header -->
-<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark px-6 py-4 lg:px-20">
-    <div class="flex items-center gap-3">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark px-4 sm:px-6 py-4 lg:px-20">
+    <div class="flex items-center gap-2 sm:gap-3">
         <div class="text-primary">
-            <span class="material-symbols-outlined text-4xl">search_insights</span>
+            <span class="material-symbols-outlined text-3xl sm:text-4xl">search_insights</span>
         </div>
-        <h2 class="text-slate-900 dark:text-slate-100 text-xl font-bold leading-tight tracking-tight font-display">Lupa Cidadã</h2>
+        <h2 class="text-slate-900 dark:text-slate-100 text-lg sm:text-xl font-bold leading-tight tracking-tight font-display">Lupa Cidadã</h2>
     </div>
     <div class="flex flex-1 justify-end gap-8 items-center">
         <nav class="hidden md:flex items-center gap-8">
@@ -63,25 +63,25 @@
 
 <!-- Hero Section -->
 <section class="bg-white dark:bg-background-dark border-b border-slate-100 dark:border-slate-800">
-    <div class="max-w-[1200px] mx-auto px-6 py-16 lg:py-24">
-        <div class="flex flex-col lg:flex-row gap-12 items-center">
-            <div class="flex flex-col gap-8 flex-1">
+    <div class="max-w-[1200px] mx-auto px-4 sm:px-6 py-10 sm:py-16 lg:py-24">
+        <div class="flex flex-col lg:flex-row gap-10 sm:gap-12 items-center">
+            <div class="flex flex-col gap-6 sm:gap-8 flex-1">
                 <div class="flex flex-col gap-4 text-left">
-                    <h1 class="text-slate-900 dark:text-slate-100 text-5xl lg:text-6xl font-black leading-[1.1] tracking-tight font-display">
+                    <h1 class="text-slate-900 dark:text-slate-100 text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.1] tracking-tight font-display">
                         Transparência em cada centavo
                     </h1>
-                    <p class="text-slate-600 dark:text-slate-400 text-lg max-w-xl">
+                    <p class="text-slate-600 dark:text-slate-400 text-base sm:text-lg max-w-xl">
                         Acompanhe o destino das emendas parlamentares e fortaleça o controle social no Brasil. Transformamos dados complexos em informação clara para você.
                     </p>
                 </div>
                 <div class="w-full max-w-2xl relative">
-                    <form id="searchForm" class="flex w-full items-stretch rounded-xl h-16 shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900 relative z-20">
-                        <div class="text-slate-400 flex items-center justify-center pl-6">
+                    <form id="searchForm" class="flex w-full items-stretch rounded-xl h-14 sm:h-16 shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900 relative z-20">
+                        <div class="text-slate-400 hidden sm:flex items-center justify-center pl-6">
                             <span class="material-symbols-outlined">search</span>
                         </div>
-                        <input id="searchInput" autocomplete="off" class="flex-1 bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 px-4 text-base placeholder:text-slate-400" placeholder="Buscar por Cidade, Deputado ou Senador..." />
-                        <div class="flex items-center pr-2">
-                            <button type="submit" class="h-12 px-8 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-all">
+                        <input id="searchInput" autocomplete="off" class="flex-1 bg-transparent border-none focus:ring-0 text-slate-900 dark:text-slate-100 px-4 text-sm sm:text-base placeholder:text-slate-400" placeholder="Buscar Cidade ou Parlamentar..." />
+                        <div class="flex items-center pr-1 sm:pr-2">
+                            <button type="submit" class="h-10 sm:h-12 px-4 sm:px-8 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-all text-sm sm:text-base">
                                 Pesquisar
                             </button>
                         </div>
@@ -123,27 +123,27 @@
 </section>
 
 <!-- Stats Cards -->
-<section class="max-w-[1200px] mx-auto px-6 -mt-10 mb-16 relative z-20">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="flex flex-col gap-3 rounded-2xl p-8 bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-slate-800">
-            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wider">Total de Emendas 2024</p>
-            <p class="text-slate-900 dark:text-slate-100 text-3xl font-bold font-display">R$ 24.5 Bilhões</p>
-            <div class="flex items-center gap-2 text-green-600 text-sm font-semibold">
+<section class="max-w-[1200px] mx-auto px-4 sm:px-6 -mt-6 sm:-mt-10 mb-12 sm:mb-16 relative z-20">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+        <div class="flex flex-col gap-2 sm:gap-3 rounded-2xl p-6 sm:p-8 bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-slate-800">
+            <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium uppercase tracking-wider">Total de Emendas 2024</p>
+            <p class="text-slate-900 dark:text-slate-100 text-2xl sm:text-3xl font-bold font-display">R$ 24.5 Bilhões</p>
+            <div class="flex items-center gap-2 text-green-600 text-xs sm:text-sm font-semibold">
                 <span class="material-symbols-outlined text-sm">trending_up</span>
                 <span>+15% em relação a 2023</span>
             </div>
         </div>
-        <div class="flex flex-col gap-3 rounded-2xl p-8 bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-slate-800">
-            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wider">Valor Pago até o momento</p>
-            <p class="text-slate-900 dark:text-slate-100 text-3xl font-bold font-display">R$ 12.8 Bilhões</p>
-            <div class="flex items-center gap-2 text-primary text-sm font-semibold">
+        <div class="flex flex-col gap-2 sm:gap-3 rounded-2xl p-6 sm:p-8 bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-slate-800">
+            <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium uppercase tracking-wider">Valor Pago até o momento</p>
+            <p class="text-slate-900 dark:text-slate-100 text-2xl sm:text-3xl font-bold font-display">R$ 12.8 Bilhões</p>
+            <div class="flex items-center gap-2 text-primary text-xs sm:text-sm font-semibold">
                 <span class="material-symbols-outlined text-sm">schedule</span>
                 <span>52% do total aprovado</span>
             </div>
         </div>
-        <div class="flex flex-col gap-3 rounded-2xl p-8 bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-slate-800">
-            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-wider">Cidades Beneficiadas</p>
-            <p class="text-slate-900 dark:text-slate-100 text-3xl font-bold font-display">4.230</p>
+        <div class="flex flex-col gap-2 sm:gap-3 rounded-2xl p-6 sm:p-8 bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-slate-800">
+            <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium uppercase tracking-wider">Cidades Beneficiadas</p>
+            <p class="text-slate-900 dark:text-slate-100 text-2xl sm:text-3xl font-bold font-display">4.230</p>
             <div class="flex items-center gap-2 text-green-600 text-sm font-semibold">
                 <span class="material-symbols-outlined text-sm">location_city</span>
                 <span>76% dos municípios brasileiros</span>
@@ -153,15 +153,15 @@
 </section>
 
 <!-- Quick Access -->
-<section class="max-w-[1200px] mx-auto px-6 mb-20">
-    <div class="flex items-end justify-between mb-8">
+<section class="max-w-[1200px] mx-auto px-4 sm:px-6 mb-16 sm:mb-20">
+    <div class="flex items-end justify-between mb-6 sm:mb-8">
         <div>
-            <h2 class="text-slate-900 dark:text-slate-100 text-3xl font-bold font-display">Acesso Rápido</h2>
-            <p class="text-slate-500 mt-1">Navegue pelos principais eixos de transparência</p>
+            <h2 class="text-slate-900 dark:text-slate-100 text-2xl sm:text-3xl font-bold font-display">Acesso Rápido</h2>
+            <p class="text-slate-500 mt-1 text-sm sm:text-base">Navegue pelos principais eixos de transparência</p>
         </div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <a class="group flex flex-col gap-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 transition-all hover:border-primary/50 hover:shadow-lg" href="/parlamentar">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+        <a class="group flex flex-col gap-4 sm:gap-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 transition-all hover:border-primary/50 hover:shadow-lg" href="/parlamentar">
             <div class="w-14 h-14 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
                 <span class="material-symbols-outlined text-3xl">account_balance</span>
             </div>
@@ -192,49 +192,49 @@
 </section>
 
 <!-- Highlights & Map Section -->
-<section class="bg-slate-50 dark:bg-slate-900/50 py-20 border-y border-slate-200 dark:border-slate-800">
-    <div class="max-w-[1200px] mx-auto px-6">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+<section class="bg-slate-50 dark:bg-slate-900/50 py-12 sm:py-20 border-y border-slate-200 dark:border-slate-800">
+    <div class="max-w-[1200px] mx-auto px-4 sm:px-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-16">
             <div>
-                <h2 class="text-slate-900 dark:text-slate-100 text-3xl font-bold font-display mb-4">Destaques Recentes</h2>
-                <p class="text-slate-500 mb-8">Últimas emendas liberadas e atualizações de empenho no sistema nacional.</p>
+                <h2 class="text-slate-900 dark:text-slate-100 text-2xl sm:text-3xl font-bold font-display mb-2 sm:mb-4">Destaques Recentes</h2>
+                <p class="text-slate-500 mb-6 sm:mb-8 text-sm sm:text-base">Últimas emendas liberadas e atualizações de empenho no sistema nacional.</p>
                 <div class="flex flex-col gap-4">
-                    <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center gap-6 shadow-sm">
+                    <div class="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 shadow-sm">
                         <div class="w-12 h-12 rounded-lg bg-green-50 text-green-600 flex items-center justify-center flex-shrink-0">
                             <span class="material-symbols-outlined">check_circle</span>
                         </div>
-                        <div class="flex-1">
-                            <div class="flex justify-between items-start mb-1">
-                                <h4 class="font-bold text-slate-900 dark:text-slate-100">Reforma de UBS - Curitiba/PR</h4>
-                                <span class="text-xs font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">R$ 450.000</span>
+                        <div class="flex-1 w-full relative">
+                            <div class="flex flex-col sm:flex-row sm:justify-between items-start mb-1 sm:mb-1">
+                                <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base pr-20 sm:pr-0">Reforma de UBS - Curitiba/PR</h4>
+                                <span class="text-xs font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded absolute sm:relative top-0 right-0 sm:top-auto sm:right-auto">R$ 450.000</span>
                             </div>
-                            <p class="text-sm text-slate-500">Indicada por: Dep. Federal Maria Silva</p>
+                            <p class="text-xs sm:text-sm text-slate-500">Indicada por: Dep. Federal Maria Silva</p>
                             <p class="text-xs text-slate-400 mt-1">Liberado há 2 horas</p>
                         </div>
                     </div>
-                    <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center gap-6 shadow-sm">
+                    <div class="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 shadow-sm">
                         <div class="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
                             <span class="material-symbols-outlined">school</span>
                         </div>
-                        <div class="flex-1">
-                            <div class="flex justify-between items-start mb-1">
-                                <h4 class="font-bold text-slate-900 dark:text-slate-100">Equipamentos Digitais - Escolas Manaus/AM</h4>
-                                <span class="text-xs font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">R$ 1.2M</span>
+                        <div class="flex-1 w-full relative">
+                            <div class="flex flex-col sm:flex-row sm:justify-between items-start mb-1 sm:mb-1">
+                                <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base pr-24 sm:pr-0">Equipamentos Digitais - Escolas Manaus/AM</h4>
+                                <span class="text-xs font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded absolute sm:relative top-0 right-0 sm:top-auto sm:right-auto">R$ 1.2M</span>
                             </div>
-                            <p class="text-sm text-slate-500">Indicada por: Senador João Rocha</p>
+                            <p class="text-xs sm:text-sm text-slate-500">Indicada por: Senador João Rocha</p>
                             <p class="text-xs text-slate-400 mt-1">Liberado há 5 horas</p>
                         </div>
                     </div>
-                    <div class="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center gap-6 shadow-sm">
+                    <div class="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 shadow-sm">
                         <div class="w-12 h-12 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center flex-shrink-0">
                             <span class="material-symbols-outlined">engineering</span>
                         </div>
-                        <div class="flex-1">
-                            <div class="flex justify-between items-start mb-1">
-                                <h4 class="font-bold text-slate-900 dark:text-slate-100">Saneamento Básico - Juazeiro/BA</h4>
-                                <span class="text-xs font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">R$ 890.000</span>
+                        <div class="flex-1 w-full relative">
+                            <div class="flex flex-col sm:flex-row sm:justify-between items-start mb-1 sm:mb-1">
+                                <h4 class="font-bold text-slate-900 dark:text-slate-100 text-sm sm:text-base pr-20 sm:pr-0">Saneamento Básico - Juazeiro/BA</h4>
+                                <span class="text-xs font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded absolute sm:relative top-0 right-0 sm:top-auto sm:right-auto">R$ 890.000</span>
                             </div>
-                            <p class="text-sm text-slate-500">Indicada por: Dep. Federal Carlos Lima</p>
+                            <p class="text-xs sm:text-sm text-slate-500">Indicada por: Dep. Federal Carlos Lima</p>
                             <p class="text-xs text-slate-400 mt-1">Liberado há 8 horas</p>
                         </div>
                     </div>
@@ -243,10 +243,10 @@
                     Ver todas as liberações <span class="material-symbols-outlined">arrow_forward</span>
                 </button>
             </div>
-            <div class="flex flex-col">
-                <h2 class="text-slate-900 dark:text-slate-100 text-3xl font-bold font-display mb-4">Distribuição Geográfica</h2>
-                <p class="text-slate-500 mb-8">Visualize onde os recursos federais estão sendo aplicados em tempo real.</p>
-                <div class="flex-1 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm flex flex-col min-h-[400px]">
+            <div class="flex flex-col mt-6 sm:mt-0">
+                <h2 class="text-slate-900 dark:text-slate-100 text-2xl sm:text-3xl font-bold font-display mb-2 sm:mb-4">Distribuição Geográfica</h2>
+                <p class="text-slate-500 mb-6 sm:mb-8 text-sm sm:text-base">Visualize onde os recursos federais estão sendo aplicados em tempo real.</p>
+                <div class="flex-1 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-8 shadow-sm flex flex-col min-h-[300px] sm:min-h-[400px]">
                     <div class="w-full flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-lg overflow-hidden relative">
                         <div class="absolute inset-0 flex items-center justify-center flex-col p-4 text-center">
                             <span class="material-symbols-outlined text-6xl text-slate-300 dark:text-slate-600 mb-4">map</span>
@@ -277,9 +277,9 @@
 </main>
 
 <!-- Footer -->
-<footer class="bg-white dark:bg-background-dark border-t border-slate-200 dark:border-slate-800 px-6 py-12 lg:px-20">
-    <div class="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
-        <div class="col-span-1 md:col-span-1 flex flex-col gap-4">
+<footer class="bg-white dark:bg-background-dark border-t border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-10 sm:py-12 lg:px-20">
+    <div class="max-w-[1200px] mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12">
+        <div class="col-span-1 sm:col-span-2 md:col-span-1 flex flex-col gap-4">
             <div class="flex items-center gap-3">
                 <div class="text-primary">
                     <span class="material-symbols-outlined text-3xl">search_insights</span>
@@ -324,7 +324,7 @@
             </ul>
         </div>
     </div>
-    <div class="max-w-[1200px] mx-auto mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400">
+    <div class="max-w-[1200px] mx-auto mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400 text-center md:text-left">
         <p>© 2024 Lupa Cidadã - Dados de livre consulta. Todos os direitos reservados.</p>
         <div class="flex gap-6">
             <a class="hover:underline" href="#">Privacidade</a>
