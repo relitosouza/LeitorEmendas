@@ -167,31 +167,43 @@ def detect_ano(df: pd.DataFrame, filename: str) -> int:
                          "Name the file as YYYY.xlsx or ensure an ANO column exists.")
 
 
-def build_rows(df: pd.DataFrame, ano: int) -> list:
+def build_rows(df: pd.DataFrame, ano: int, tipo: str) -> list:
     """Convert DataFrame to list of dicts ready for Supabase insert."""
     rows = []
     for _, row in df.iterrows():
         nome = str(row.get('nome', '')).strip()
         if not nome:
             continue
-        rows.append(normalize_deputado_row(row.to_dict(), ano=ano))
+        rows.append(normalize_deputado_row(row.to_dict(), ano=ano, tipo=tipo))
     return rows
 
 
-def ingest(file_path: str, dry_run: bool = False):
+def ingest(file_path: str, tipo: str = None, dry_run: bool = False):
     df = load_file(file_path)
     ano = detect_ano(df, file_path)
-    rows = build_rows(df, ano)
+    
+    if not tipo:
+        if 'feder' in str(file_path).lower():
+            tipo = 'deputado federal'
+        else:
+            tipo = 'deputado estadual'
 
-    print(f"Loaded {len(rows)} rows for ano={ano} from '{file_path}'")
+    rows = build_rows(df, ano, tipo)
+
+    print(f"Loaded {len(rows)} rows for ano={ano}, tipo='{tipo}' from '{file_path}'")
 
     if dry_run:
         print("[dry-run] Skipping database write.")
         return
 
     client = get_supabase_client()
+    
+    # Clean legacy if necessary
     client.table('emendas').delete().eq('tipo', 'deputado').eq('ano', ano).execute()
-    print(f"Deleted existing deputado rows for ano={ano}")
+    
+    # Delete only the specific type being ingested
+    client.table('emendas').delete().eq('tipo', tipo).eq('ano', ano).execute()
+    print(f"Deleted existing '{tipo}' rows for ano={ano}")
 
     batch_size = 500
     for i in range(0, len(rows), batch_size):
@@ -205,6 +217,7 @@ def ingest(file_path: str, dry_run: bool = False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Ingest deputados data into Supabase')
     parser.add_argument('file', help='Path to XLSX, XLS, CSV, or PDF file')
+    parser.add_argument('--tipo', help="Tipo de deputado (e.g. 'deputado estadual', 'deputado federal'). Se omitido, infere pelo nome do arquivo.", default=None)
     parser.add_argument('--dry-run', action='store_true', help='Parse only, do not write to DB')
     args = parser.parse_args()
-    ingest(args.file, dry_run=args.dry_run)
+    ingest(args.file, tipo=args.tipo, dry_run=args.dry_run)

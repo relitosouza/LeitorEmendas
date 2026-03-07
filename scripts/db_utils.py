@@ -49,7 +49,7 @@ def _safe(val, default=None):
     return val
 
 
-def normalize_deputado_row(row: dict, ano: int) -> dict:
+def normalize_deputado_row(row: dict, ano: int, tipo: str = 'deputado estadual') -> dict:
     """Convert a processed DataFrame row (dict) to an emendas table row."""
     data_val = _safe(row.get('data'))
     if data_val and data_val != '-':
@@ -61,7 +61,7 @@ def normalize_deputado_row(row: dict, ano: int) -> dict:
         data_val = None
 
     return {
-        'tipo': 'deputado',
+        'tipo': tipo,
         'nome': str(row.get('nome', '')).strip(),
         'partido': _safe(row.get('partido')),
         'ano': ano,

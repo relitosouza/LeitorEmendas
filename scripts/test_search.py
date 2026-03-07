@@ -10,11 +10,9 @@ supabase: Client = create_client(
 )
 
 # Search
-query = "marcos"
-q = supabase.table('emendas').select('nome').ilike('nome', f'%{query}%').limit(10)
+q = supabase.table('emendas').select('*').or_(f"nome.ilike.%kim%,beneficiario.ilike.%kim%").limit(10)
 res = q.execute()
 
-nomes_unicos = set(r['nome'] for r in res.data)
-print(f"Nomes encontrados contendo '{query}':")
-for n in nomes_unicos:
-    print(n)
+print(f"Total encontrados: {len(res.data)}")
+for d in res.data:
+    print(f"- {d.get('ano')} | {d.get('municipio')} | R$ {d.get('valor')} | {d.get('objeto')} | {d.get('status')} | pago: {d.get('pago')}")
