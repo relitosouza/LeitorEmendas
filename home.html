@@ -403,14 +403,43 @@
         }
     }
 
-    function doSearch(query) {
+    async function doSearch(query) {
         if (!query) return;
-        const isMunicipio = matchedMunicipios.some(m => m.toLowerCase() === query.toLowerCase());
-        const isParlamentar = matchedParlamentares.some(p => p.toLowerCase() === query.toLowerCase());
+        
+        const lowerQuery = query.toLowerCase();
+        const isExactMunicipio = matchedMunicipios.some(m => m.toLowerCase() === lowerQuery);
+        const isExactParlamentar = matchedParlamentares.some(p => p.toLowerCase() === lowerQuery);
 
-        if (isParlamentar && !isMunicipio) {
+        if (isExactParlamentar && !isExactMunicipio) {
             navigateTo('parlamentar', query);
-        } else {
+            return;
+        } else if (isExactMunicipio) {
+            navigateTo('municipio', query);
+            return;
+        }
+
+        // Se não houver correspondência exata nos dados em cache da tela, 
+        // requisitamos ao servidor para decidir o redirecionamento.
+        try {
+            const [mResp, pResp] = await Promise.all([
+                fetch(`${API_BASE}/api/search_municipios?q=${encodeURIComponent(query)}`),
+                fetch(`${API_BASE}/api/search_nomes?q=${encodeURIComponent(query)}`)
+            ]);
+            
+            const mList = mResp.ok ? await mResp.json() : [];
+            const pList = pResp.ok ? await pResp.json() : [];
+            
+            if (pList.length > 0 && mList.length === 0) {
+                // Apenas parlamentar encontrado!
+                navigateTo('parlamentar', pList[0]);
+            } else if (mList.length > 0) {
+                // Precedência de município, ou caso de empate, município.
+                navigateTo('municipio', mList[0]);
+            } else {
+                // Caso extremo sem correspondência, tenta via Parlamentar (pode ser da Câmara) ou Município!
+                navigateTo('municipio', query);
+            }
+        } catch (e) {
             navigateTo('municipio', query);
         }
     }
