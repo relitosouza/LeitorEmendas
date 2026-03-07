@@ -47,6 +47,7 @@ def get_camara_info(nome):
             dados = resp.json().get('dados', [])
             if dados:
                 return {
+                    "nome": dados[0].get('nome', '').upper(),
                     "foto": dados[0].get('urlFoto', ''),
                     "partido": dados[0].get('siglaPartido', ''),
                     "uf": dados[0].get('siglaUf', '')
@@ -187,7 +188,20 @@ def search_nomes():
     names_set = set()
     for row in result.data:
         if row.get('nome'):
-            names_set.add(row['nome'].strip())
+            names_set.add(row['nome'].strip().upper())
+            
+    # Integrar com Câmara dos Deputados para a Busca (Kim Kataguiri, etc)
+    try:
+        url = "https://dadosabertos.camara.leg.br/api/v2/deputados"
+        params = {"nome": query, "ordem": "ASC", "ordenarPor": "nome"}
+        resp = requests.get(url, params=params, timeout=5)
+        if resp.status_code == 200:
+            dados = resp.json().get('dados', [])
+            for dep in dados:
+                if dep.get('nome'):
+                    names_set.add(dep['nome'].strip().upper())
+    except Exception as e:
+        print("Erro ao buscar Câmara API:", e)
             
     # Ordenar em ordem alfabética para facilitar
     sorted_names = sorted(list(names_set))
@@ -312,6 +326,27 @@ def get_parlamentar_data(query):
     rows = result.data
 
     if not rows:
+        camara_info = get_camara_info(query)
+        if camara_info:
+            return jsonify({
+                "success": True,
+                "parlamentar": {
+                    "nome": camara_info.get("nome", query.title()),
+                    "partido": camara_info.get("partido", "-"),
+                    "tipo": "Deputado Federal",
+                    "foto": camara_info.get("foto", ""),
+                    "uf": camara_info.get("uf", "")
+                },
+                "indicadores": {
+                    "total_indicado": 0,
+                    "count": 0,
+                    "execucao_pago": 0,
+                    "setor_prioritario": [],
+                },
+                "top_municipios": {},
+                "todas_funcoes": {},
+                "historico": [],
+            })
         return jsonify({"error": "Nenhum parlamentar encontrado"}), 404
 
     if ano:
