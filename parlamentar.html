@@ -85,13 +85,18 @@
                     <span class="material-symbols-outlined text-xl">search</span>
                 </div>
                 <input id="searchInput" list="parlamentares-list" class="form-input flex w-full min-w-0 flex-1 border-none bg-transparent focus:ring-0 h-full placeholder:text-slate-400 px-4 pl-2 text-sm font-normal" placeholder="Buscar parlamentar..." type="text"/>
-                <!-- Hidden year selector (kept for JS compatibility) -->
-                <div id="anoSelectorContainer" class="hidden items-center gap-1">
-                    <select id="anoSelector" class="text-sm border-none bg-transparent rounded px-1 py-1 text-primary focus:ring-0 cursor-pointer"></select>
-                </div>
-                <div id="anoDivider" style="display:none"></div>
             </form>
         </label>
+        
+        <div id="anoSelectorContainer" class="hidden sm:block relative w-48 h-10">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none">calendar_month</span>
+            <select id="anoSelector" class="w-full h-full bg-slate-100 dark:bg-slate-800 border-none rounded-lg pl-10 pr-8 py-2 text-sm focus:ring-1 focus:ring-primary focus:border-primary transition-all outline-none text-slate-700 dark:text-slate-200 appearance-none cursor-pointer">
+                <option value="">Todos os Anos</option>
+            </select>
+            <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none flex items-center">
+                <span class="material-symbols-outlined text-slate-400 text-[20px]">expand_more</span>
+            </div>
+        </div>
         <button class="flex items-center justify-center rounded-lg h-10 px-5 bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-all">
             <span class="truncate">Entrar</span>
         </button>
@@ -404,7 +409,6 @@
     const searchInput = document.getElementById('searchInput');
     const anoSelector = document.getElementById('anoSelector');
     const anoSelectorContainer = document.getElementById('anoSelectorContainer');
-    const anoDivider = document.getElementById('anoDivider');
 
     const emptyState = document.getElementById('emptyState');
     const dashboardContent = document.getElementById('dashboardContent');
@@ -502,24 +506,25 @@
 
     // Atualiza o seletor de anos (desktop + mobile sheet)
     function updateAnoSelector(anos, selected) {
-        anoSelector.innerHTML = '';
-        anoSelectorSheet.innerHTML = '';
+        anoSelector.innerHTML = '<option value="">Todos os Anos</option>';
+        anoSelectorSheet.innerHTML = '<option value="">Todos os Anos</option>';
         if (anos && anos.length > 0) {
             anos.forEach(ano => {
                 const opt = document.createElement('option');
                 opt.value = ano;
                 opt.textContent = ano;
-                if (ano === selected) opt.selected = true;
+                if (ano == selected) opt.selected = true;
                 anoSelector.appendChild(opt);
 
                 const optSheet = opt.cloneNode(true);
                 anoSelectorSheet.appendChild(optSheet);
             });
             anoSelectorContainer.classList.remove('hidden');
-            anoSelectorContainer.classList.add('flex');
             anoSelectorSheetContainer.classList.remove('hidden');
-            anoDivider.style.display = '';
-            currentAno = selected || anos[0];
+            
+            currentAno = selected || '';
+            anoSelector.value = currentAno;
+            anoSelectorSheet.value = currentAno;
         }
     }
 
